@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 1: Personal Profile</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fonts for Professional vs Casual modes -->
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+    <style>
+        .font-pro { font-family: 'Merriweather', serif; }
+        .font-casual { font-family: 'Patrick Hand', cursive; }
+    </style>
+</head>
+<body class="bg-gray-200 min-h-screen flex items-center justify-center p-4">
+
+    <div id="app">
+        <div :class="containerClasses" class="w-full max-w-md rounded-xl shadow-xl overflow-hidden transition-all duration-500">
+            
+            <!-- Header / Image -->
+            <div class="h-32 bg-cover bg-center" :class="isProfessional ? 'bg-slate-700' : 'bg-indigo-500'" style="background-image: url('https://source.unsplash.com/random/800x200?nature')"></div>
+            <div class="flex justify-center -mt-16">
+                <img :src="profilePic" alt="Profile" class="w-32 h-32 rounded-full border-4 object-cover" :class="isProfessional ? 'border-white' : 'border-yellow-300'">
+            </div>
+
+            <!-- Content -->
+            <div class="p-6 text-center">
+                <h1 class="text-3xl font-bold mb-1">{{ fullName }}</h1>
+                <p class="text-sm opacity-75 mb-4">{{ city }} • {{ age }} years old</p>
+
+                <!-- Bio -->
+                <p class="mb-6 px-4 leading-relaxed">{{ bio }}</p>
+
+                <!-- Details Grid -->
+                <div class="grid grid-cols-1 gap-4 text-left bg-opacity-10 bg-black p-4 rounded-lg mb-6">
+                    <div><strong>Email:</strong> {{ email }}</div>
+                    <div><strong>Hobbies:</strong> {{ hobbiesList }}</div>
+                    <div v-if="yearsUntil30 > 0"><strong>To 30:</strong> {{ yearsUntil30 }} years left!</div>
+                </div>
+
+                <!-- Random Fact -->
+                <div class="mb-6 p-3 rounded border" :class="isProfessional ? 'bg-slate-50 border-slate-200' : 'bg-yellow-50 border-yellow-200'">
+                    <h3 class="font-bold text-sm uppercase tracking-wide mb-1">Random Fact</h3>
+                    <p class="italic">"{{ currentFact }}"</p>
+                    <button @click="nextFact" class="mt-2 text-xs underline hover:no-underline">New Fact</button>
+                </div>
+
+                <!-- Toggle Mode Button -->
+                <button @click="toggleMode" 
+                    class="px-6 py-2 rounded-full font-semibold transition-transform active:scale-95 shadow-md"
+                    :class="isProfessional ? 'bg-slate-800 text-white hover:bg-slate-700' : 'bg-pink-500 text-white hover:bg-pink-600'">
+                    Switch to {{ isProfessional ? 'Casual' : 'Professional' }} Mode
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    firstName: 'Bou',
+                    lastName: 'Panha',
+                    age: 25,
+                    email: 'boupanha97@gmail.com',
+                    city: 'Phnom Penh',
+                    hobbies: ['Coding', 'Reading', 'Gaming', 'Traveling'],
+                    bio: 'Full-Stack Web Developer in training, passionate about building accessible and impactful solutions.',
+                    isProfessional: true,
+                    facts: [
+                        'I can solve a Rubik\'s cube in under 2 minutes.',
+                        'I have never broken a bone.',
+                        'I love spicy food more than anything.',
+                        'I code better at night.'
+                    ],
+                    currentFactIndex: 0,
+                    profilePic: 'https://i.pravatar.cc/300?img=11'
+                }
+            },
+            computed: {
+                fullName() {
+                    return `${this.firstName} ${this.lastName}`;
+                },
+                hobbiesList() {
+                    return this.hobbies.join(', ');
+                },
+                yearsUntil30() {
+                    return 30 - this.age;
+                },
+                currentFact() {
+                    return this.facts[this.currentFactIndex];
+                },
+                containerClasses() {
+                    return this.isProfessional 
+                        ? 'bg-white text-slate-800 font-pro' 
+                        : 'bg-yellow-50 text-indigo-900 font-casual border-4 border-indigo-400';
+                }
+            },
+            methods: {
+                toggleMode() {
+                    this.isProfessional = !this.isProfessional;
+                },
+                nextFact() {
+                    let nextIndex;
+                    do {
+                        nextIndex = Math.floor(Math.random() * this.facts.length);
+                    } while (nextIndex === this.currentFactIndex && this.facts.length > 1);
+                    this.currentFactIndex = nextIndex;
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

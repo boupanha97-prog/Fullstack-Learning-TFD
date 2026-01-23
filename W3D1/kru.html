@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vue Counter</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://cdn.tailwindcss.com/4.0.0-alpha.1"></script>
+</head>
+<body class="min-h-screen flex items-center justify-center bg-gray-100">
+  <div id="app" class="bg-white p-8 rounded-lg shadow-lg text-center">
+    <h1 class="text-2xl font-bold text-gray-800">{{ title }}</h1>
+    <div class="text-7xl font-bold text-emerald-500 my-6 font-mono">{{ count }}</div>
+    <div class="space-x-2">
+      <button @click="decrement" 
+              class="px-6 py-3 text-lg bg-emerald-500 text-white rounded-md hover:bg-emerald-600 transition-all hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0">
+        -
+      </button>
+      <button @click="reset" 
+              class="px-6 py-3 text-lg bg-emerald-500 text-white rounded-md hover:bg-emerald-600 transition-all hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0">
+        Reset
+      </button>
+      <button @click="increment" 
+              class="px-6 py-3 text-lg bg-emerald-500 text-white rounded-md hover:bg-emerald-600 transition-all hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0">
+        +
+      </button>
+    </div>
+    <p class="mt-4 text-lg text-gray-600">Button clicked {{ count }} times</p>
+  </div>
+
+  <script>
+    const { createApp } = Vue;
+
+    createApp({
+      data() {
+        return {
+          title: 'Vue Counter App',
+          count: 0
+        }
+      },
+      methods: {
+        increment() {
+          this.count++;
+        },
+        decrement() {
+          this.count--;
+        },
+        reset() {
+          this.count = 0;
+        }
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>

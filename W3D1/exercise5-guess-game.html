@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Exercise 5: Guess the Number</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-indigo-900 min-h-screen flex items-center justify-center font-sans">
+
+    <div id="app" class="bg-white p-8 rounded-2xl shadow-2xl w-[450px] text-center border-4 border-indigo-200">
+        <h1 class="text-3xl font-extrabold text-indigo-800 mb-2">Guess the Number</h1>
+        <p class="text-gray-500 mb-6">I'm thinking of a number between 1 and 100.</p>
+
+        <!-- Game Status -->
+        <div v-if="!gameOver">
+            <div class="mb-6">
+                <input 
+                    v-model.number="userGuess" 
+                    @keyup.enter="checkGuess"
+                    type="number" 
+                    placeholder="?" 
+                    class="w-24 h-24 text-center text-4xl font-bold border-2 border-indigo-100 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition"
+                    autofocus
+                >
+            </div>
+            
+            <button 
+                @click="checkGuess" 
+                class="bg-indigo-600 text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-indigo-700 transition shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+            >
+                Guess!
+            </button>
+        </div>
+
+        <!-- Success Message -->
+        <div v-else class="mb-6 animate-bounce">
+            <div class="text-6xl mb-2">🎉</div>
+            <h2 class="text-2xl font-bold text-green-600">Correct!</h2>
+            <p class="text-gray-600">You found the number <strong>{{ targetNumber }}</strong> in {{ attempts }} attempts.</p>
+            <button @click="startNewGame" class="mt-4 bg-green-500 text-white px-6 py-2 rounded-full font-bold hover:bg-green-600 transition">Play Again</button>
+        </div>
+
+        <!-- Feedback & Hints -->
+        <div v-if="message" class="mt-6 p-4 rounded-lg" :class="feedbackClass">
+            <p class="font-bold text-lg">{{ message }}</p>
+            <p v-if="hint && !gameOver" class="text-sm mt-1 opacity-90">{{ hint }}</p>
+        </div>
+
+        <!-- History -->
+        <div v-if="guesses.length > 0" class="mt-8 border-t pt-4">
+            <p class="text-xs text-gray-400 uppercase font-bold mb-2">Previous Guesses</p>
+            <div class="flex flex-wrap justify-center gap-2">
+                <span v-for="(g, index) in guesses" :key="index" class="px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-600 font-mono">
+                    {{ g }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    targetNumber: 0,
+                    userGuess: '',
+                    message: '',
+                    hint: '',
+                    attempts: 0,
+                    guesses: [],
+                    gameOver: false
+                }
+            },
+            computed: {
+                feedbackClass() {
+                    if (this.gameOver) return 'bg-green-100 text-green-800';
+                    if (this.hint.includes('Very hot')) return 'bg-red-100 text-red-800';
+                    if (this.hint.includes('Hot')) return 'bg-orange-100 text-orange-800';
+                    if (this.hint.includes('Warm')) return 'bg-yellow-100 text-yellow-800';
+                    return 'bg-blue-100 text-blue-800'; // Cold
+                }
+            },
+            methods: {
+                startNewGame() {
+                    this.targetNumber = Math.floor(Math.random() * 100) + 1;
+                    this.userGuess = '';
+                    this.message = '';
+                    this.hint = '';
+                    this.attempts = 0;
+                    this.guesses = [];
+                    this.gameOver = false;
+                    console.log("Target:", this.targetNumber); // For debugging
+                },
+                checkGuess() {
+                    if (!this.userGuess || this.userGuess < 1 || this.userGuess > 100) {
+                        this.message = "Please enter a number between 1 and 100.";
+                        this.hint = "";
+                        return;
+                    }
+
+                    this.attempts++;
+                    this.guesses.push(this.userGuess);
+                    const diff = Math.abs(this.targetNumber - this.userGuess);
+
+                    if (this.userGuess === this.targetNumber) {
+                        this.gameOver = true;
+                        this.message = "You won!";
+                        this.hint = "";
+                    } else {
+                        this.message = this.userGuess > this.targetNumber ? "Too High!" : "Too Low!";
+                        
+                        // Hint Logic
+                        if (diff <= 5) this.hint = "🔥 Very hot! (Within 5)";
+                        else if (diff <= 10) this.hint = "🥵 Hot (5-10 away)";
+                        else if (diff <= 20) this.hint = "😐 Warm (10-20 away)";
+                        else if (diff <= 30) this.hint = "🥶 Cold (20-30 away)";
+                        else this.hint = "🧊 Very cold (>30 away)";
+                    }
+                    
+                    if(!this.gameOver) this.userGuess = ''; // Clear input for next guess
+                }
+            },
+            mounted() {
+                this.startNewGame();
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
