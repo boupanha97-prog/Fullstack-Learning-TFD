@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Contac Form</title>
+    </head>
+    <body>
+        <header>
+            <h1>Contact Us</h1>
+        </header>
+
+        <main>
+            <form action="/submit-contact" method="POST">
+                <label for="name">Name: <span style="color: red;">*</span></label>
+                <input type="text" name="name" id="name" required minlength="2">
+                <br><br>
+
+                <label for="phone">Tel: <span style="color: red;">*</span><label>
+                <input type="tel" name="phone" id="phone" name="phone" 
+                    pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" 
+                    placeholder="123-456-7890">
+                <br><br>
+                
+                <select id="subject" name="subject">
+                    <option value="">Select a subject</option>
+                    <option value="general">General Inquiry</option>
+                </select>
+                <br><br>
+                
+                <textarea id="message" name="message" rows="5" required></textarea>
+                <br><br>
+
+                <label>
+                    <input type="checkbox" name="subscribe" value="yes">
+                    Subscribe to newsletter
+                </label>
+                
+                <button type="submit">Submit</button>
+            </form>
+        </main>
+
+        <footer>
+            <p>&copy; 2026 Bou Panha</p>
+        </footer>
+    </body>
+</html>
