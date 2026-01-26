@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Registration Form</title>
+    </head>
+    <body>
+        <header>
+            <h1>Create Account</h1>
+        </header>
+
+        <main>
+            <form action="/register" method="POST">
+                <label for="username">Username: <span style="color: red;">*</span></label>
+                <input type="text" name="username" id="username" required minlength="3">
+                <br><br>
+
+                <label for="email">Email: <span style="color: red;">*</span></label>
+                <input type="email" name="email" id="email" required>
+                <br><br>
+
+                <label for="password">Password: <span style="color: red;">*</span></label>
+                <input type="password" name="password" id="password" required minlength="8">
+                <br><br>
+
+                <label for="confirm-password">Confirm Password: <span style="color: red;">*</span></label>
+                <input type="password" name="confirm-password" id="confirm-password" required>
+                <br><br>
+
+                <label for="dob">Date of Birth: <span style="color: red;">*</span></label>
+                <input type="date" name="dob" id="dob" required>
+                <br><br>
+
+                <label>Gender: <span style="color: red;">*</span></label>
+                <br>
+                <input type="radio" name="gender" value="male" id="male" required> <label for="male">Male</label>
+                <input type="radio" name="gender" value="female" id="female"> <label for="female">Female</label>
+                <input type="radio" name="gender" value="other" id="other"> <label for="other">Other</label>
+                <br><br>
+
+                <label for="country">Country</label>
+                <select name="country" id="country">
+                    <option value="">Select a country</option>
+                    <option value="us">United States</option>
+                    <option value="ca">Canada</option>
+                    <option value="mx">Mexico</option>
+                    <option value="uk">United Kingdom</option>
+                    <option value="au">Australia</option>
+                </select>
+                <br><br>
+
+                <label>
+                    <input type="checkbox" name="terms" required>
+                    I agree to the Terms and Conditions
+                </label>
+                <br><br>
+
+                <button type="submit">Register</button>
+            </form>
+        </main>
+        
+        <footer>
+            <p>&copy; 2026 Bou Panha</p>
+        </footer>
+    </body>
+</html>
