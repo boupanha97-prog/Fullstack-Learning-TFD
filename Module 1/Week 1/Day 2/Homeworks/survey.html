@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Survey Form with Semantic HTML</title>
+    </head>
+    <body>
+        <header>
+            <h1>Customer Satisfaction Survey</h1>
+            <hr>
+
+            <nav>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main>
+            <form action="/submit-survey" method="POST" style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
+                <fieldset style="border: 1px solid #ccc; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
+                    <legend style="font-weight: bold;">Personal Information</legend>
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" name="name" required placeholder="John Doe" style="width: 100%; padding: 8px; margin-top: 5px; margin-bottom: 10px; box-sizing: border-box;">
+                    <br><br>
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required placeholder="john@example.com" style="width: 100%; padding: 8px; margin-top: 5px; margin-bottom: 10px; box-sizing: border-box;">
+                    <br><br>
+                    <label for="phone">Phone Number:</label>
+                    <input type="tel" id="phone" name="phone" placeholder="123-456-7890" style="width: 100%; padding: 8px; margin-top: 5px; margin-bottom: 10px; box-sizing: border-box;">
+                    <br><br>
+                    <label for="website">Your Website:</label>
+                    <input type="url" id="website" name="website" placeholder="https://example.com" style="width: 100%; padding: 8px; margin-top: 5px; margin-bottom: 10px; box-sizing: border-box;">
+                    <br><br>
+                    <label for="visit-date">Date of visit:</label>
+                    <input type="date" id="visit-date" name="visit-date" style="width: 100%; padding: 8px; margin-top: 5px; margin-bottom: 10px; box-sizing: border-box;">
+                    <br><br>
+                    <label for="age">Age:</label>
+                    <input type="number" id="age" name="age" required min="13" max="120" placeholder="25" style="width: 100%; padding: 8px; margin-top: 5px; margin-bottom: 10px; box-sizing: border-box;">
+                </fieldset>
+                <br>
+                <fieldset style="border: 1px solid #ccc; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
+                    <legend style="font-weight: bold;">How did you hear about us?</legend>
+                    <select id="referral" name="referral" style="width: 100%; padding: 8px; margin-top: 5px; margin-bottom: 10px; box-sizing: border-box;">
+                        <option value="">Select an option</option>
+                        <option value="social">Social Media</option>
+                        <option value="friend">Friend or Family</option>
+                        <option value="search">Search Engine</option>
+                        <option value="ad">Advertisement</option>
+                        <option value="other">Other</option>
+                    </select>
+                </fieldset>
+                <br>
+                <fieldset style="border: 1px solid #ccc; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
+                    <legend style="font-weight: bold;">How satisfied are you with our service?</legend>
+                    <input type="radio" id="very-satisfied" name="satisfaction" value="very-satisfied" required>
+                    <label for="very-satisfied">Very Satisfied</label><br>
+                    <input type="radio" id="satisfied" name="satisfaction" value="satisfied">
+                    <label for="satisfied">Satisfied</label><br>
+                    <input type="radio" id="neutral" name="satisfaction" value="neutral">
+                    <label for="neutral">Neutral</label><br>
+                    <input type="radio" id="dissatisfied" name="satisfaction" value="dissatisfied">
+                    <label for="dissatisfied">Dissatisfied</label><br>
+                </fieldset>
+                <br>
+                <fieldset style="border: 1px solid #ccc; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
+                    <legend style="font-weight: bold;">Likelihood to recommend (0-10)</legend>
+                    <input type="range" id="recommend" name="recommend" min="0" max="10" style="width: 100%;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.9em;">
+                        <span>0 (Not Likely)</span>
+                        <span>10 (Very Likely)</span>
+                    </div>
+                </fieldset>
+                <br>
+                <fieldset style="border: 1px solid #ccc; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
+                    <legend style="font-weight: bold;">Which features do you use? (Select all that apply)</legend>
+                    <label>
+                        <input type="checkbox" name="features[]" value="dashboard"> Dashboard
+                    </label><br>
+                    <label>
+                        <input type="checkbox" name="features[]" value="reports"> Reporting
+                    </label><br>
+                    <label>
+                        <input type="checkbox" name="features[]" value="api"> API Integration
+                    </label><br>
+                    <label>
+                        <input type="checkbox" name="features[]" value="support"> Customer Support
+                    </label><br>
+                </fieldset>
+                <br>
+                <fieldset style="border: 1px solid #ccc; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
+                    <legend style="font-weight: bold;">Please rate the overall quality (1 = Poor, 5 = Excellent)</legend>
+                    <label>1 <input type="radio" name="quality" value="1" required></label>
+                    <label>2 <input type="radio" name="quality" value="2"></label>
+                    <label>3 <input type="radio" name="quality" value="3"></label>
+                    <label>4 <input type="radio" name="quality" value="4"></label>
+                    <label>5 <input type="radio" name="quality" value="5"></label>
+                </fieldset>
+                <br>
+                <fieldset style="border: 1px solid #ccc; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
+                    <legend style="font-weight: bold;">Preferences</legend>
+                    <label for="theme-color">Favorite Color:</label>
+                    <input type="color" id="theme-color" name="theme-color" value="#000000">
+                </fieldset>
+                <br>
+                <fieldset style="border: 1px solid #ccc; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
+                    <legend style="font-weight: bold;">Additional Comments</legend>
+                    <label for="comments">Please provide any other feedback:</label><br>
+                    <textarea id="comments" name="comments" rows="5" cols="50" minlength="10" maxlength="500" placeholder="Type your feedback here..." style="width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box;"></textarea>
+                </fieldset>
+                <br>
+                <button type="submit" style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">Submit Survey</button>
+                <button type="reset" style="padding: 10px 20px; background-color: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-left: 10px;">Reset Form</button>
+            </form>
+        </main>
+
+        <footer>
+            <p>&copy; 2026 Bou Panha</p>
+        </footer>
+    </body>
+</html>
