@@ -1,0 +1,31 @@
+body{
+    background-color: lightskyblue;
+    font-family: Arial, Helvetica, sans-serif;
+    padding: 20px;
+}
+
+section{
+    padding: 10px;
+}
+
+header{
+    margin: 20px;
+}
+
+div ul{
+    border: 2px solid;
+    border-radius: 5px;
+    padding: 15px;
+    list-style-position: inside;
+}
+
+h1{
+    color: black;
+    text-align: center;
+    margin: 20px 0;
+}
+
+h2{
+    color: darkblue;
+    margin: 20px 0;
+}
