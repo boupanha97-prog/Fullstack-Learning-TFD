@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tailwind Landing Page</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="font-sans text-gray-800 antialiased">
+
+    <!-- 1. Hero Section -->
+    <section class="h-screen bg-gradient-to-br from-indigo-600 to-purple-700 flex items-center justify-center text-white px-6">
+        <div class="text-center max-w-3xl">
+            <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">Build Faster with Tailwind CSS</h1>
+            <p class="text-lg md:text-2xl mb-10 text-indigo-100">Create beautiful, responsive websites without leaving your HTML. Utility-first CSS framework for rapid UI development.</p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <button class="bg-white text-indigo-600 font-bold py-3 px-8 rounded-full hover:bg-gray-100 transition duration-300 shadow-lg transform hover:-translate-y-1 cursor-pointer">
+                    Get Started
+                </button>
+                <button class="bg-transparent border-2 border-white text-white font-bold py-3 px-8 rounded-full hover:bg-white/10 transition duration-300 cursor-pointer">
+                    Learn More
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. Features Section -->
+    <section class="py-20 px-6 bg-white">
+        <div class="container mx-auto">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-16 text-gray-900">Why Choose Us?</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="p-8 bg-gray-50 rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group">
+                    <div class="w-14 h-14 bg-indigo-100 rounded-lg flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform duration-300">
+                        🚀
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-gray-900">Lightning Fast</h3>
+                    <p class="text-gray-600 leading-relaxed">Optimized for speed and performance. Your site will load in the blink of an eye.</p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="p-8 bg-gray-50 rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group">
+                    <div class="w-14 h-14 bg-purple-100 rounded-lg flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform duration-300">
+                        📱
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-gray-900">Fully Responsive</h3>
+                    <p class="text-gray-600 leading-relaxed">Looks perfect on any device, from mobile phones to large desktop screens.</p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="p-8 bg-gray-50 rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group">
+                    <div class="w-14 h-14 bg-pink-100 rounded-lg flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform duration-300">
+                        🎨
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-gray-900">Customizable</h3>
+                    <p class="text-gray-600 leading-relaxed">Easily customize colors, spacing, and typography to match your brand identity.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. About Section -->
+    <section class="py-20 px-6 bg-gray-50">
+        <div class="container mx-auto">
+            <div class="flex flex-col md:flex-row items-center gap-12">
+                <!-- Image Column -->
+                <div class="w-full md:w-1/2">
+                    <div class="relative rounded-2xl overflow-hidden shadow-2xl h-64 md:h-96 bg-gray-300">
+                        <!-- Placeholder Image -->
+                        <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Team working" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
+                    </div>
+                </div>
+                
+                <!-- Text Column -->
+                <div class="w-full md:w-1/2">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-6 text-gray-900">About Our Mission</h2>
+                    <p class="text-lg text-gray-600 mb-6 leading-relaxed">
+                        We are dedicated to providing the best tools for developers. Our team consists of passionate individuals who believe in the power of open source and community-driven development.
+                    </p>
+                    <p class="text-lg text-gray-600 mb-8 leading-relaxed">
+                        Whether you are a beginner or an expert, our platform offers the resources you need to succeed in your web development journey.
+                    </p>
+                    <a href="#" class="inline-flex items-center text-indigo-600 font-semibold hover:text-indigo-800 transition-colors">
+                        Read our story 
+                        <span class="ml-2">→</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. Testimonials Section -->
+    <section class="py-20 px-6 bg-white">
+        <div class="container mx-auto">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-16 text-gray-900">What People Say</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Testimonial 1 -->
+                <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 flex flex-col">
+                    <div class="text-indigo-500 text-4xl mb-4">"</div>
+                    <p class="text-gray-600 italic mb-6 flex-grow">This platform completely changed how I approach web design. The utility classes are a game changer!</p>
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-gray-300 rounded-full mr-4 overflow-hidden">
+                            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-900">Sarah Johnson</h4>
+                            <p class="text-sm text-gray-500">Frontend Developer</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 2 -->
+                <div class="bg-indigo-600 p-8 rounded-2xl shadow-lg flex flex-col text-white transform md:-translate-y-4">
+                    <div class="text-indigo-200 text-4xl mb-4">"</div>
+                    <p class="italic mb-6 flex-grow">I was skeptical at first, but the speed at which I can prototype layouts now is incredible. Highly recommended.</p>
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-indigo-400 rounded-full mr-4 overflow-hidden">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <h4 class="font-bold">Michael Chen</h4>
+                            <p class="text-sm text-indigo-200">Product Designer</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 3 -->
+                <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 flex flex-col">
+                    <div class="text-indigo-500 text-4xl mb-4">"</div>
+                    <p class="text-gray-600 italic mb-6 flex-grow">The responsive design features are intuitive and powerful. It saved me hours of writing media queries.</p>
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-gray-300 rounded-full mr-4 overflow-hidden">
+                            <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="User" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-900">Emily Davis</h4>
+                            <p class="text-sm text-gray-500">UX Engineer</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. Contact Form Section -->
+    <section class="py-20 px-6 bg-gray-50">
+        <div class="container mx-auto max-w-2xl">
+            <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+                <h2 class="text-3xl font-bold text-center mb-8 text-gray-900">Get in Touch</h2>
+                <form class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                            <input type="text" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all" placeholder="John">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                            <input type="text" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all" placeholder="Doe">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                        <input type="email" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all" placeholder="john@example.com">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                        <textarea rows="4" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all" placeholder="How can we help you?"></textarea>
+                    </div>
+
+                    <button type="button" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300 shadow-md hover:shadow-lg cursor-pointer">
+                        Send Message
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. Footer -->
+    <footer class="bg-gray-900 text-gray-300 py-12 px-6">
+        <div class="container mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+                <!-- Brand -->
+                <div>
+                    <h3 class="text-2xl font-bold text-white mb-4">BrandName</h3>
+                    <p class="text-sm leading-relaxed mb-4">
+                        Creating digital experiences that matter. Join us on our journey to build the future of web development.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="hover:text-white transition-colors">🐦</a>
+                        <a href="#" class="hover:text-white transition-colors">📘</a>
+                        <a href="#" class="hover:text-white transition-colors">📸</a>
+                        <a href="#" class="hover:text-white transition-colors">💼</a>
+                    </div>
+                </div>
+
+                <!-- Links 1 -->
+                <div>
+                    <h4 class="text-lg font-semibold text-white mb-4">Product</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-indigo-400 transition-colors">Features</a></li>
+                        <li><a href="#" class="hover:text-indigo-400 transition-colors">Pricing</a></li>
+                        <li><a href="#" class="hover:text-indigo-400 transition-colors">Documentation</a></li>
+                        <li><a href="#" class="hover:text-indigo-400 transition-colors">Releases</a></li>
+                    </ul>
+                </div>
+
+                <!-- Links 2 -->
+                <div>
+                    <h4 class="text-lg font-semibold text-white mb-4">Company</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-indigo-400 transition-colors">About Us</a></li>
+                        <li><a href="#" class="hover:text-indigo-400 transition-colors">Careers</a></li>
+                        <li><a href="#" class="hover:text-indigo-400 transition-colors">Press</a></li>
+                        <li><a href="#" class="hover:text-indigo-400 transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+
+                <!-- Newsletter -->
+                <div>
+                    <h4 class="text-lg font-semibold text-white mb-4">Stay Updated</h4>
+                    <p class="text-sm mb-4">Subscribe to our newsletter for the latest updates.</p>
+                    <div class="flex flex-col space-y-2">
+                        <input type="email" placeholder="Enter your email" class="bg-gray-800 border border-gray-700 rounded px-4 py-2 focus:outline-none focus:border-indigo-500 text-white">
+                        <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded transition-colors cursor-pointer">Subscribe</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 pt-8 text-center text-sm">
+                <p>&copy; 2023 BrandName. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
