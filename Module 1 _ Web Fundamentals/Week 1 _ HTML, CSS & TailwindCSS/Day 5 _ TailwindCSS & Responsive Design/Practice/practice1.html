@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tailwind Card Component</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4 font-sans">
+
+    <!-- Card Component -->
+    <div class="w-full max-w-[250px] bg-white rounded-lg border border-gray-200 shadow-md overflow-hidden flex flex-col hover:shadow-lg transition-shadow duration-300">
+        
+        <!-- Card Image -->
+        <div class="w-full h-[200px] bg-gradient-to-br from-[#667eea] to-[#764ba2] flex items-center justify-center text-white font-bold text-xl">
+            Product
+        </div>
+
+        <!-- Card Content -->
+        <div class="p-4 flex flex-col flex-grow">
+            <h3 class="text-lg font-bold text-gray-800 mb-2">Product Title</h3>
+            <p class="text-sm text-gray-600 mb-4 leading-relaxed">
+                Short description of the product that explains its features.
+            </p>
+            
+            <!-- Price -->
+            <div class="text-2xl font-bold text-blue-500 mb-4 mt-auto">
+                $29.99
+            </div>
+
+            <button class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded transition-colors duration-300">
+                Add to Cart
+            </button>
+        </div>
+    </div>
+
+</body>
+</html>
