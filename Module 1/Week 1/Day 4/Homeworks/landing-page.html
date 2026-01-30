@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Landing Page</title>
+    <link rel="stylesheet" href="landing.css">
+</head>
+<body>
+    <!-- 1. Header (Flexbox) -->
+    <header>
+        <div class="logo">BrandName</div>
+        <nav>
+            <ul>
+                <li><a href="#hero">Home</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#gallery">Gallery</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- 2. Hero Section (Flexbox) -->
+    <section id="hero" class="hero">
+        <h1>Welcome to Our Product</h1>
+        <p>Experience the future of innovation with our amazing solutions designed to help you grow.</p>
+        <div class="cta-buttons">
+            <button class="btn primary">Get Started</button>
+            <button class="btn secondary">Learn More</button>
+        </div>
+    </section>
+
+    <!-- 3. Features Section (CSS Grid) -->
+    <section id="features" class="section-padding">
+        <h2 class="section-title">Why Choose Us</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="icon">🚀</div>
+                <h3>Fast Performance</h3>
+                <p>Optimized for speed and efficiency to keep you moving forward without delay.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">🛡️</div>
+                <h3>Secure</h3>
+                <p>Top-notch security features to keep your data safe and sound at all times.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">📱</div>
+                <h3>Responsive</h3>
+                <p>Looks great on any device, from mobile phones to desktops and tablets.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. Gallery Section (CSS Grid) -->
+    <section id="gallery" class="section-padding bg-light">
+        <h2 class="section-title">Our Gallery</h2>
+        <div class="gallery-grid">
+            <!-- Card 1 -->
+            <div class="card">
+                <div class="card-image">Image</div>
+                <div class="card-content">
+                    <h3>Wireless Headphones</h3>
+                    <p>High-quality wireless headphones with noise cancellation feature.</p>
+                    <div class="price">$99.99</div>
+                    <button>Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="card">
+                <div class="card-image">Image</div>
+                <div class="card-content">
+                    <h3>Smart Watch</h3>
+                    <p>Track your fitness goals and stay connected on the go.</p>
+                    <div class="price">$149.99</div>
+                    <button>Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="card">
+                <div class="card-image">Image</div>
+                <div class="card-content">
+                    <h3>Running Shoes</h3>
+                    <p>Lightweight and comfortable shoes perfect for daily running.</p>
+                    <div class="price">$79.99</div>
+                    <button>Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="card">
+                <div class="card-image">Image</div>
+                <div class="card-content">
+                    <h3>Digital Camera</h3>
+                    <p>Capture life's best moments with stunning clarity and detail.</p>
+                    <div class="price">$499.99</div>
+                    <button>Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Card 5 -->
+            <div class="card">
+                <div class="card-image">Image</div>
+                <div class="card-content">
+                    <h3>Laptop Backpack</h3>
+                    <p>Durable and stylish backpack with a dedicated laptop compartment.</p>
+                    <div class="price">$45.00</div>
+                    <button>Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Card 6 -->
+            <div class="card">
+                <div class="card-image">Image</div>
+                <div class="card-content">
+                    <h3>Gaming Mouse</h3>
+                    <p>Precision gaming mouse with customizable RGB lighting effects.</p>
+                    <div class="price">$59.99</div>
+                    <button>Add to Cart</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. Footer (Flexbox) -->
+    <footer id="contact">
+        <div class="footer-content">
+            <div class="footer-col">
+                <h3>Quick Links</h3>
+                <a href="#">About Us</a>
+                <a href="#">Services</a>
+                <a href="#">Privacy Policy</a>
+            </div>
+            <div class="footer-col">
+                <h3>Social Media</h3>
+                <a href="#">Facebook</a>
+                <a href="#">Twitter</a>
+                <a href="#">Instagram</a>
+            </div>
+            <div class="footer-col">
+                <h3>Contact</h3>
+                <p>123 Tech Street</p>
+                <p>City, Country</p>
+                <p>email@example.com</p>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2026 BrandName. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
