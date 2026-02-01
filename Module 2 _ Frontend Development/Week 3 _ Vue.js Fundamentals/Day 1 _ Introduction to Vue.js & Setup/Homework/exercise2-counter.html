@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 2: Interactive Counter</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>[v-cloak] { display: none; }</style>
+</head>
+<body class="bg-gray-900 min-h-screen flex items-center justify-center p-4">
+
+    <div id="app" v-cloak class="w-full max-w-lg bg-gray-800 rounded-xl shadow-2xl p-8 text-white">
+        
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8 border-b border-gray-700 pb-4">
+            <h1 class="text-2xl font-bold">Counter App</h1>
+            <div class="text-right">
+                <p class="text-xs text-gray-400">Highest Reached</p>
+                <p class="text-xl font-mono text-yellow-400">{{ highest }}</p>
+            </div>
+        </div>
+
+        <!-- Display -->
+        <div class="text-center mb-8">
+            <div class="text-8xl font-bold mb-2 transition-colors duration-300" :style="{ color: counterColor }">
+                {{ count }}
+            </div>
+            <p class="text-lg font-medium h-8" :style="{ color: counterColor }">{{ message }}</p>
+        </div>
+
+        <!-- Controls -->
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <button @click="increment(1)" class="bg-blue-600 hover:bg-blue-500 py-3 rounded font-bold transition">+1</button>
+            <button @click="increment(5)" class="bg-blue-600 hover:bg-blue-500 py-3 rounded font-bold transition">+5</button>
+            <button @click="increment(10)" class="bg-blue-600 hover:bg-blue-500 py-3 rounded font-bold transition">+10</button>
+            <button @click="increment(-1)" class="bg-red-600 hover:bg-red-500 py-3 rounded font-bold transition">-1</button>
+        </div>
+
+        <!-- Reset & Custom -->
+        <div class="flex gap-4 mb-8">
+            <button @click="reset(0)" class="w-1/3 bg-gray-600 hover:bg-gray-500 py-2 rounded font-medium transition">Reset</button>
+            <div class="flex w-2/3">
+                <input v-model.number="customInput" type="number" class="w-full px-3 bg-gray-700 rounded-l outline-none focus:ring-1 focus:ring-blue-500" placeholder="Set value">
+                <button @click="reset(customInput)" class="bg-indigo-600 hover:bg-indigo-500 px-4 rounded-r font-medium transition">Set</button>
+            </div>
+        </div>
+
+        <!-- History -->
+        <div class="bg-gray-900 rounded-lg p-4">
+            <h3 class="text-sm font-bold text-gray-400 mb-2 uppercase tracking-wider">History (Last 5)</h3>
+            <ul class="space-y-1 text-sm font-mono text-gray-300">
+                <li v-for="(log, index) in history" :key="index" class="border-b border-gray-800 pb-1 last:border-0">
+                    {{ log }}
+                </li>
+                <li v-if="history.length === 0" class="text-gray-600 italic">No actions yet.</li>
+            </ul>
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    count: 0,
+                    customInput: '',
+                    history: [],
+                    highest: 0
+                }
+            },
+            computed: {
+                message() {
+                    if (this.count < 0) return "Negative territory!";
+                    if (this.count === 0) return "Just started!";
+                    if (this.count < 50) return "Getting there!";
+                    if (this.count === 50) return "Halfway to 100!";
+                    if (this.count < 100) return "Almost there!";
+                    return "Century! 💯";
+                },
+                counterColor() {
+                    if (this.count < 0) return '#ef4444'; // Red
+                    if (this.count < 50) return '#3b82f6'; // Blue
+                    if (this.count < 100) return '#f97316'; // Orange
+                    return '#22c55e'; // Green
+                }
+            },
+            methods: {
+                increment(amount) {
+                    this.count += amount;
+                    this.updateStats(amount > 0 ? `+${amount}` : amount);
+                },
+                reset(value) {
+                    // Ensure value is a number, default to 0 if empty
+                    const newVal = typeof value === 'number' ? value : 0;
+                    this.count = newVal;
+                    this.updateStats(`Reset to ${newVal}`);
+                    this.customInput = '';
+                },
+                updateStats(action) {
+                    // Update highest
+                    if (this.count > this.highest) {
+                        this.highest = this.count;
+                    }
+                    
+                    // Update history
+                    const log = `${action} (Total: ${this.count})`;
+                    this.history.unshift(log);
+                    if (this.history.length > 5) {
+                        this.history.pop();
+                    }
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 3: Simple Calculator</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>[v-cloak] { display: none; }</style>
+</head>
+<body class="bg-indigo-50 min-h-screen flex items-center justify-center p-4">
+
+    <div id="app" v-cloak class="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
+        
+        <!-- Display Screen -->
+        <div class="bg-gray-900 p-6 text-right">
+            <p class="text-gray-400 text-sm h-5">{{ lastOperation }}</p>
+            <h1 class="text-4xl font-bold text-white tracking-wider truncate">{{ displayResult }}</h1>
+            <p v-if="error" class="text-red-400 text-xs mt-1">{{ error }}</p>
+        </div>
+
+        <!-- Inputs -->
+        <div class="p-6 bg-gray-50 border-b border-gray-200">
+            <div class="flex gap-4">
+                <input 
+                    v-model.number="num1" 
+                    type="number" 
+                    placeholder="Num 1"
+                    class="w-1/2 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-lg font-mono"
+                >
+                <input 
+                    v-model.number="num2" 
+                    type="number" 
+                    placeholder="Num 2"
+                    class="w-1/2 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-lg font-mono"
+                    @keyup.enter="calculate('+')" 
+                >
+            </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="p-6 grid grid-cols-4 gap-3">
+            <button @click="calculate('+')" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-bold py-4 rounded-lg text-xl transition">+</button>
+            <button @click="calculate('-')" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-bold py-4 rounded-lg text-xl transition">-</button>
+            <button @click="calculate('*')" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-bold py-4 rounded-lg text-xl transition">×</button>
+            <button @click="calculate('/')" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-bold py-4 rounded-lg text-xl transition">÷</button>
+            
+            <!-- Bonus Operations -->
+            <button @click="calculate('%')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-lg transition">%</button>
+            <button @click="calculate('sq')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-lg transition">x²</button>
+            <button @click="calculate('sqrt')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-lg transition">√</button>
+            
+            <button @click="clear" class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-lg transition">C</button>
+        </div>
+
+        <!-- History -->
+        <div class="bg-gray-50 p-4 border-t border-gray-200 max-h-40 overflow-y-auto">
+            <h3 class="text-xs font-bold text-gray-500 uppercase mb-2">History</h3>
+            <ul class="space-y-1">
+                <li v-for="(item, index) in history" :key="index" class="text-sm text-gray-600 font-mono flex justify-between hover:bg-gray-200 p-1 rounded cursor-pointer" @click="recall(item)">
+                    <span>{{ item.equation }}</span>
+                    <span class="font-bold">= {{ item.res }}</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    num1: '',
+                    num2: '',
+                    result: null,
+                    lastOperation: '',
+                    error: '',
+                    history: []
+                }
+            },
+            computed: {
+                displayResult() {
+                    return this.result !== null ? this.result : '0';
+                }
+            },
+            methods: {
+                calculate(op) {
+                    this.error = '';
+                    if (this.num1 === '' && op !== 'sqrt') { this.error = 'Enter Number 1'; return; }
+                    
+                    let res = 0;
+                    let eq = '';
+
+                    // Single number operations
+                    if (op === 'sq') { res = this.num1 * this.num1; eq = `${this.num1}²`; }
+                    else if (op === 'sqrt') { 
+                        if(this.num1 < 0) { this.error = 'Invalid Input'; return; }
+                        res = Math.sqrt(this.num1); eq = `√${this.num1}`; 
+                    }
+                    else {
+                        // Two number operations
+                        if (this.num2 === '') { this.error = 'Enter Number 2'; return; }
+                        
+                        switch(op) {
+                            case '+': res = this.num1 + this.num2; eq = `${this.num1} + ${this.num2}`; break;
+                            case '-': res = this.num1 - this.num2; eq = `${this.num1} - ${this.num2}`; break;
+                            case '*': res = this.num1 * this.num2; eq = `${this.num1} × ${this.num2}`; break;
+                            case '%': res = this.num1 % this.num2; eq = `${this.num1} % ${this.num2}`; break;
+                            case '/': 
+                                if(this.num2 === 0) { this.error = "Cannot divide by zero"; return; }
+                                res = this.num1 / this.num2; eq = `${this.num1} ÷ ${this.num2}`; 
+                                break;
+                        }
+                    }
+
+                    // Round to 4 decimals if needed
+                    res = Math.round(res * 10000) / 10000;
+                    
+                    this.result = res;
+                    this.lastOperation = `${eq} = ${res}`;
+                    
+                    // Add to history
+                    this.history.unshift({ equation: eq, res: res });
+                    if(this.history.length > 5) this.history.pop();
+                },
+                clear() {
+                    this.num1 = '';
+                    this.num2 = '';
+                    this.result = null;
+                    this.lastOperation = '';
+                    this.error = '';
+                },
+                recall(item) {
+                    this.num1 = item.res;
+                    this.num2 = '';
+                    this.result = item.res;
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

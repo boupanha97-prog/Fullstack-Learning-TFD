@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 1: Personal Profile Card</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>[v-cloak] { display: none; }</style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+
+    <div id="app" v-cloak class="w-full max-w-md transition-all duration-500" :class="isProfessional ? 'font-sans' : 'font-serif'">
+        
+        <!-- Card Container -->
+        <div class="bg-white rounded-xl shadow-2xl overflow-hidden transform transition hover:scale-[1.01]">
+            
+            <!-- Header / Cover -->
+            <div class="h-32 transition-colors duration-500" :class="isProfessional ? 'bg-indigo-600' : 'bg-pink-500'"></div>
+            
+            <!-- Profile Image & Toggle -->
+            <div class="px-6 relative">
+                <div class="flex justify-between items-end -mt-12 mb-4">
+                    <img :src="profilePic" alt="Profile" class="w-24 h-24 rounded-full border-4 border-white bg-white shadow-md object-cover">
+                    <button 
+                        @click="toggleMode" 
+                        class="mb-2 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wide transition shadow hover:shadow-md"
+                        :class="isProfessional ? 'bg-gray-800 text-white' : 'bg-yellow-400 text-black'"
+                    >
+                        {{ isProfessional ? 'Professional Mode' : 'Casual Mode' }}
+                    </button>
+                </div>
+
+                <!-- Main Info -->
+                <div class="text-center md:text-left mb-6">
+                    <h1 class="text-2xl font-bold text-gray-900">{{ fullName }}</h1>
+                    <p class="text-sm" :class="isProfessional ? 'text-gray-500' : 'text-purple-600'">{{ city }} • {{ email }}</p>
+                </div>
+
+                <!-- Bio -->
+                <div class="mb-6 p-4 rounded-lg" :class="isProfessional ? 'bg-gray-50 border-l-4 border-indigo-500' : 'bg-yellow-50 border-2 border-dashed border-yellow-400'">
+                    <h3 class="font-bold mb-1" :class="isProfessional ? 'text-gray-700' : 'text-pink-600'">About Me</h3>
+                    <p class="text-gray-600">{{ bio }}</p>
+                    <p class="mt-2 text-xs text-gray-400 font-mono">
+                        Age: {{ age }} ({{ yearsUntil30 }} years until 30)
+                    </p>
+                </div>
+
+                <!-- Hobbies -->
+                <div class="mb-6">
+                    <h3 class="font-bold mb-2 text-gray-700">Hobbies</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <span v-for="hobby in hobbies" :key="hobby" 
+                              class="px-3 py-1 rounded-full text-sm"
+                              :class="isProfessional ? 'bg-gray-200 text-gray-700' : 'bg-green-200 text-green-800 transform -rotate-2'">
+                            {{ hobby }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Random Fact -->
+                <div class="mb-8 text-center">
+                    <p class="text-sm italic mb-3 text-gray-500">"{{ facts[currentFactIndex] }}"</p>
+                    <button 
+                        @click="randomFact" 
+                        class="w-full py-2 rounded-md transition duration-200 font-medium"
+                        :class="isProfessional ? 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100' : 'bg-gradient-to-r from-pink-500 to-yellow-500 text-white hover:opacity-90'"
+                    >
+                        Show Another Fact
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    firstName: 'Bou',
+                    lastName: 'Panha',
+                    age: 25,
+                    email: 'panha.dev@example.com',
+                    city: 'Phnom Penh',
+                    hobbies: ['Coding', 'Photography', 'Badminton'],
+                    bio: 'A dedicated frontend developer who loves building interactive user interfaces and learning new technologies.',
+                    isProfessional: true,
+                    facts: [
+                        'I drink 3 cups of coffee a day.',
+                        'I have never broken a bone.',
+                        'I can solve a Rubik\'s cube in under 2 minutes.',
+                        'I prefer dark mode on everything.'
+                    ],
+                    currentFactIndex: 0,
+                    profilePic: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Panha'
+                }
+            },
+            computed: {
+                fullName() {
+                    return `${this.firstName} ${this.lastName}`;
+                },
+                yearsUntil30() {
+                    return this.age < 30 ? 30 - this.age : 0;
+                }
+            },
+            methods: {
+                toggleMode() {
+                    this.isProfessional = !this.isProfessional;
+                },
+                randomFact() {
+                    let newIndex;
+                    // Ensure we don't get the same fact twice in a row
+                    do {
+                        newIndex = Math.floor(Math.random() * this.facts.length);
+                    } while (newIndex === this.currentFactIndex && this.facts.length > 1);
+                    this.currentFactIndex = newIndex;
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

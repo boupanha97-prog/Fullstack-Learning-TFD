@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 4: Color Mixer</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>[v-cloak] { display: none; }</style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+
+    <div id="app" v-cloak class="w-full max-w-2xl bg-white rounded-xl shadow-lg flex flex-col md:flex-row overflow-hidden">
+        
+        <!-- Color Preview Side -->
+        <div class="w-full md:w-1/2 h-64 md:h-auto flex flex-col items-center justify-center text-white p-6 transition-colors duration-200" :style="boxStyle">
+            <h2 class="text-3xl font-bold uppercase tracking-widest shadow-sm">{{ hexColor }}</h2>
+            <p class="mt-2 opacity-80 font-mono">rgb({{ red }}, {{ green }}, {{ blue }})</p>
+        </div>
+
+        <!-- Controls Side -->
+        <div class="w-full md:w-1/2 p-8">
+            <h1 class="text-2xl font-bold text-gray-800 mb-6">Color Mixer</h1>
+
+            <!-- Sliders -->
+            <div class="space-y-6 mb-8">
+                <div>
+                    <div class="flex justify-between mb-1">
+                        <label class="text-sm font-bold text-red-500">Red</label>
+                        <span class="text-sm font-mono text-gray-600">{{ red }}</span>
+                    </div>
+                    <input type="range" min="0" max="255" v-model.number="red" class="w-full h-2 bg-red-200 rounded-lg appearance-none cursor-pointer accent-red-500">
+                </div>
+
+                <div>
+                    <div class="flex justify-between mb-1">
+                        <label class="text-sm font-bold text-green-500">Green</label>
+                        <span class="text-sm font-mono text-gray-600">{{ green }}</span>
+                    </div>
+                    <input type="range" min="0" max="255" v-model.number="green" class="w-full h-2 bg-green-200 rounded-lg appearance-none cursor-pointer accent-green-500">
+                </div>
+
+                <div>
+                    <div class="flex justify-between mb-1">
+                        <label class="text-sm font-bold text-blue-500">Blue</label>
+                        <span class="text-sm font-mono text-gray-600">{{ blue }}</span>
+                    </div>
+                    <input type="range" min="0" max="255" v-model.number="blue" class="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                </div>
+            </div>
+
+            <!-- Presets -->
+            <div class="mb-6">
+                <p class="text-xs font-bold text-gray-400 uppercase mb-2">Presets</p>
+                <div class="flex flex-wrap gap-2">
+                    <button @click="setPreset(255, 0, 0)" class="w-8 h-8 rounded-full bg-red-500 border border-gray-200 shadow-sm hover:scale-110 transition"></button>
+                    <button @click="setPreset(0, 255, 0)" class="w-8 h-8 rounded-full bg-green-500 border border-gray-200 shadow-sm hover:scale-110 transition"></button>
+                    <button @click="setPreset(0, 0, 255)" class="w-8 h-8 rounded-full bg-blue-500 border border-gray-200 shadow-sm hover:scale-110 transition"></button>
+                    <button @click="setPreset(255, 255, 0)" class="w-8 h-8 rounded-full bg-yellow-400 border border-gray-200 shadow-sm hover:scale-110 transition"></button>
+                    <button @click="setPreset(128, 0, 128)" class="w-8 h-8 rounded-full bg-purple-600 border border-gray-200 shadow-sm hover:scale-110 transition"></button>
+                    <button @click="setPreset(0, 0, 0)" class="w-8 h-8 rounded-full bg-black border border-gray-200 shadow-sm hover:scale-110 transition"></button>
+                </div>
+            </div>
+
+            <!-- Random Button -->
+            <button 
+                @click="randomize" 
+                class="w-full py-3 bg-gray-800 text-white rounded-lg font-bold hover:bg-gray-700 transition shadow-lg flex items-center justify-center gap-2"
+            >
+                <span>🎲</span> Random Color
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    red: 100,
+                    green: 150,
+                    blue: 200
+                }
+            },
+            computed: {
+                hexColor() {
+                    return this.rgbToHex(this.red, this.green, this.blue);
+                },
+                boxStyle() {
+                    return {
+                        backgroundColor: `rgb(${this.red}, ${this.green}, ${this.blue})`,
+                        // Dynamically change text color based on brightness for readability
+                        color: (this.red * 0.299 + this.green * 0.587 + this.blue * 0.114) > 186 ? '#000000' : '#ffffff'
+                    }
+                }
+            },
+            methods: {
+                rgbToHex(r, g, b) {
+                    const toHex = (c) => {
+                        const hex = c.toString(16);
+                        return hex.length === 1 ? "0" + hex : hex;
+                    };
+                    return "#" + toHex(r) + toHex(g) + toHex(b);
+                },
+                setPreset(r, g, b) {
+                    this.red = r; this.green = g; this.blue = b;
+                },
+                randomize() {
+                    this.red = Math.floor(Math.random() * 256);
+                    this.green = Math.floor(Math.random() * 256);
+                    this.blue = Math.floor(Math.random() * 256);
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

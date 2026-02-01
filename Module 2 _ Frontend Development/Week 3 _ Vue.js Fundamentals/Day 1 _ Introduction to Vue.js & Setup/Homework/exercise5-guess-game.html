@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 5: Guess the Number</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>[v-cloak] { display: none; }</style>
+</head>
+<body class="bg-gradient-to-br from-purple-600 to-blue-500 min-h-screen flex items-center justify-center p-4">
+
+    <div id="app" v-cloak class="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8 text-center">
+        
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">Guess the Number</h1>
+        <p class="text-gray-500 mb-6">I'm thinking of a number between 1 and 100.</p>
+
+        <!-- Game Status -->
+        <div v-if="!gameOver" class="mb-6">
+            <div class="relative">
+                <input 
+                    v-model.number="guess" 
+                    @keyup.enter="checkGuess"
+                    type="number" 
+                    class="w-full text-center text-4xl font-bold py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-purple-500 transition"
+                    placeholder="?"
+                    :disabled="gameOver"
+                >
+            </div>
+            <button 
+                @click="checkGuess" 
+                class="mt-4 w-full bg-purple-600 text-white font-bold py-3 rounded-lg hover:bg-purple-700 transition shadow-lg"
+            >
+                Check Guess
+            </button>
+        </div>
+
+        <!-- Success Message -->
+        <div v-else class="mb-8 p-6 bg-green-100 rounded-xl border-2 border-green-400 animate-bounce">
+            <h2 class="text-2xl font-bold text-green-700 mb-2">🎉 Correct!</h2>
+            <p class="text-green-800">You found the number <strong>{{ targetNumber }}</strong> in {{ attempts }} attempts.</p>
+            <button @click="resetGame" class="mt-4 bg-green-600 text-white px-6 py-2 rounded-full font-bold hover:bg-green-700 transition">Play Again</button>
+        </div>
+
+        <!-- Feedback Area -->
+        <div v-if="message && !gameOver" class="mb-6 p-4 rounded-lg" :class="feedbackClass">
+            <p class="font-bold text-lg">{{ message }}</p>
+            <p class="text-sm mt-1 opacity-90">{{ hint }}</p>
+        </div>
+
+        <!-- History -->
+        <div v-if="history.length > 0" class="border-t border-gray-200 pt-4">
+            <p class="text-xs font-bold text-gray-400 uppercase mb-3">Previous Guesses</p>
+            <div class="flex flex-wrap justify-center gap-2">
+                <span v-for="(h, index) in history" :key="index" class="px-3 py-1 bg-gray-100 rounded-full text-sm font-mono text-gray-600">
+                    {{ h }}
+                </span>
+            </div>
+            <p class="mt-4 text-sm text-gray-400">Attempts: {{ attempts }}</p>
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    targetNumber: 0,
+                    guess: '',
+                    attempts: 0,
+                    message: '',
+                    hint: '',
+                    history: [],
+                    gameOver: false,
+                    feedbackType: 'neutral' // neutral, hot, warm, cold
+                }
+            },
+            computed: {
+                feedbackClass() {
+                    const classes = {
+                        'hot': 'bg-red-100 text-red-700 border border-red-200',
+                        'warm': 'bg-orange-100 text-orange-700 border border-orange-200',
+                        'cold': 'bg-blue-100 text-blue-700 border border-blue-200',
+                        'neutral': 'bg-gray-100 text-gray-700'
+                    };
+                    return classes[this.feedbackType] || classes.neutral;
+                }
+            },
+            mounted() {
+                this.resetGame();
+            },
+            methods: {
+                resetGame() {
+                    this.targetNumber = Math.floor(Math.random() * 100) + 1;
+                    this.guess = '';
+                    this.attempts = 0;
+                    this.message = '';
+                    this.hint = '';
+                    this.history = [];
+                    this.gameOver = false;
+                    this.feedbackType = 'neutral';
+                    console.log("Target (for testing):", this.targetNumber);
+                },
+                checkGuess() {
+                    if (!this.guess || this.guess < 1 || this.guess > 100) return;
+                    
+                    this.attempts++;
+                    this.history.push(this.guess);
+                    
+                    const diff = Math.abs(this.targetNumber - this.guess);
+
+                    if (this.guess === this.targetNumber) {
+                        this.gameOver = true;
+                    } else {
+                        this.message = this.guess > this.targetNumber ? "Too High!" : "Too Low!";
+                        
+                        if (diff <= 5) { this.hint = "🔥 Very Hot! (Within 5)"; this.feedbackType = 'hot'; }
+                        else if (diff <= 10) { this.hint = "🥵 Hot (Within 10)"; this.feedbackType = 'hot'; }
+                        else if (diff <= 20) { this.hint = "😐 Warm (10-20 away)"; this.feedbackType = 'warm'; }
+                        else if (diff <= 30) { this.hint = "🥶 Cold (20-30 away)"; this.feedbackType = 'cold'; }
+                        else { this.hint = "🧊 Very Cold (>30 away)"; this.feedbackType = 'cold'; }
+                    }
+                    
+                    this.guess = ''; // Clear input for next guess
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
