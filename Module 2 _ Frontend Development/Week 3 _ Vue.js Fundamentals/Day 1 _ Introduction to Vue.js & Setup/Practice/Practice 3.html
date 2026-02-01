@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue Exercise 3: Simple Calculator</title>
+    <!-- Vue 3 CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        [v-cloak] { display: none; }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <div id="app" v-cloak class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h1 class="text-2xl font-bold mb-6 text-center text-indigo-600">Simple Calculator</h1>
+
+        <!-- Inputs -->
+        <div class="flex gap-4 mb-6">
+            <div class="w-1/2">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Number 1</label>
+                <!-- v-model.number converts the input string to a number automatically -->
+                <input v-model.number="num1" type="number" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 outline-none">
+            </div>
+            <div class="w-1/2">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Number 2</label>
+                <input v-model.number="num2" type="number" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 outline-none">
+            </div>
+        </div>
+
+        <!-- Operation Buttons -->
+        <div class="grid grid-cols-4 gap-2 mb-6">
+            <button @click="calculate('+')" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 rounded transition">Add</button>
+            <button @click="calculate('-')" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 rounded transition">Sub</button>
+            <button @click="calculate('*')" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 rounded transition">Mult</button>
+            <button @click="calculate('/')" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 rounded transition">Div</button>
+        </div>
+
+        <!-- Result Display -->
+        <div class="text-center p-4 bg-gray-50 rounded border border-gray-200">
+            <p class="text-gray-500 text-sm uppercase tracking-wide">Result</p>
+            <p class="text-3xl font-bold text-indigo-600 mt-1">{{ result }}</p>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    num1: 0,
+                    num2: 0,
+                    result: 0
+                }
+            },
+            methods: {
+                calculate(operator) {
+                    switch (operator) {
+                        case '+': this.result = this.num1 + this.num2; break;
+                        case '-': this.result = this.num1 - this.num2; break;
+                        case '*': this.result = this.num1 * this.num2; break;
+                        case '/': 
+                            // Prevent division by zero
+                            this.result = this.num2 !== 0 ? this.num1 / this.num2 : 'Error'; 
+                            break;
+                    }
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
