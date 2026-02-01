@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Image Gallery</title>
+    <link rel="stylesheet" href="gallery.css">
+</head>
+<body>
+    <header>
+        <h1>Nature Photography Gallery</h1>
+        <p>Use arrow keys to navigate • Esc to close</p>
+    </header>
+
+    <div class="gallery-container">
+        <div id="gallery-grid" class="gallery-grid">
+            <!-- Images will be injected here by JavaScript -->
+        </div>
+    </div>
+
+    <div id="modal" class="modal hidden">
+        <button class="close-btn" aria-label="Close modal">&times;</button>
+        <button class="nav-btn prev-btn" aria-label="Previous image">&#10094;</button>
+        <button class="nav-btn next-btn" aria-label="Next image">&#10095;</button>
+        
+        <div class="modal-content">
+            <img id="modal-image" src="" alt="">
+            <div class="modal-info">
+                <p id="modal-caption"></p>
+                <span id="image-counter"></span>
+            </div>
+        </div>
+    </div>
+
+    <script src="gallery.js"></script>
+</body>
+</html>
