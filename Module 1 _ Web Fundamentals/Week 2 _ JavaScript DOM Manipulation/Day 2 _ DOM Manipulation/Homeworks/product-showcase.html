@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Showcase</title>
+    <link rel="stylesheet" href="products.css">
+</head>
+<body>
+    <header>
+        <h1>Our Products</h1>
+        <button id="add-product" class="btn-add">Add New Product</button>
+        <div id="product-count">Total Products: 0</div>
+    </header>
+    
+    <div id="controls">
+        <input type="text" id="search-input" placeholder="Search products...">
+        <div class="sort-buttons">
+            <button id="sort-name">Sort by Name</button>
+            <button id="sort-price-asc">Price: Low to High</button>
+            <button id="sort-price-desc">Price: High to Low</button>
+        </div>
+    </div>
+    
+    <div id="products-container"></div>
+    
+    <script src="products.js"></script>
+</body>
+</html>
