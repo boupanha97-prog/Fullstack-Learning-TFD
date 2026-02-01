@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Finance Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        success: '#10B981',
+                        danger: '#EF4444',
+                        warning: '#F59E0B',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-200">
+    
+    <!-- Header -->
+    <header class="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-10">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <span class="text-3xl">💰</span>
+                <h1 class="text-2xl font-bold text-primary">FinanceTracker</h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <button id="export-pdf-btn" class="text-sm text-gray-600 dark:text-gray-300 hover:text-primary flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                    Export PDF
+                </button>
+                <button id="export-btn" class="text-sm text-gray-600 dark:text-gray-300 hover:text-primary flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    Export JSON
+                </button>
+                <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                    <!-- Sun Icon -->
+                    <svg id="sun-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    <!-- Moon Icon -->
+                    <svg id="moon-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 max-w-7xl">
+        
+        <!-- Dashboard -->
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border-l-4 border-blue-500">
+                <h2 class="text-gray-500 dark:text-gray-400 text-sm font-bold uppercase tracking-wider">Total Balance</h2>
+                <p id="balance-display" class="text-3xl font-bold mt-2">$0.00</p>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border-l-4 border-green-500">
+                <h2 class="text-gray-500 dark:text-gray-400 text-sm font-bold uppercase tracking-wider">Total Income</h2>
+                <p id="income-display" class="text-3xl font-bold text-success mt-2">$0.00</p>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border-l-4 border-red-500">
+                <h2 class="text-gray-500 dark:text-gray-400 text-sm font-bold uppercase tracking-wider">Total Expenses</h2>
+                <p id="expense-display" class="text-3xl font-bold text-danger mt-2">$0.00</p>
+            </div>
+        </section>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Column: Form -->
+            <section class="lg:col-span-1">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 sticky top-24">
+                    <h2 id="form-title" class="text-xl font-bold mb-6 flex items-center gap-2">
+                        <span class="bg-blue-100 text-blue-600 p-2 rounded-lg text-sm">➕</span> Add Transaction
+                    </h2>
+                    
+                    <form id="transaction-form" class="space-y-4">
+                        <input type="hidden" id="transaction-id">
+                        
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Type</label>
+                            <div class="grid grid-cols-2 gap-4">
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="type" value="income" class="peer sr-only" checked>
+                                    <div class="text-center py-2 rounded-lg border border-gray-200 dark:border-gray-700 peer-checked:bg-green-50 peer-checked:border-green-500 peer-checked:text-green-700 dark:peer-checked:bg-green-900/20 dark:peer-checked:text-green-400 transition-all">Income</div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="type" value="expense" class="peer sr-only">
+                                    <div class="text-center py-2 rounded-lg border border-gray-200 dark:border-gray-700 peer-checked:bg-red-50 peer-checked:border-red-500 peer-checked:text-red-700 dark:peer-checked:bg-red-900/20 dark:peer-checked:text-red-400 transition-all">Expense</div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="description" class="block text-sm font-medium mb-1">Description</label>
+                            <input type="text" id="description" placeholder="e.g. Salary, Groceries" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:ring-2 focus:ring-primary outline-none transition-colors">
+                            <span id="description-error" class="text-xs text-danger hidden"></span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="amount" class="block text-sm font-medium mb-1">Amount</label>
+                                <input type="number" id="amount" placeholder="0.00" step="0.01" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:ring-2 focus:ring-primary outline-none transition-colors">
+                                <span id="amount-error" class="text-xs text-danger hidden"></span>
+                            </div>
+                            <div>
+                                <label for="category" class="block text-sm font-medium mb-1">Category</label>
+                                <select id="category" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:ring-2 focus:ring-primary outline-none transition-colors">
+                                    <option value="">Select...</option>
+                                    <option value="Salary">Salary</option>
+                                    <option value="Food">Food</option>
+                                    <option value="Transport">Transport</option>
+                                    <option value="Entertainment">Entertainment</option>
+                                    <option value="Shopping">Shopping</option>
+                                    <option value="Bills">Bills</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <span id="category-error" class="text-xs text-danger hidden"></span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="date" class="block text-sm font-medium mb-1">Date</label>
+                            <input type="date" id="date" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:ring-2 focus:ring-primary outline-none transition-colors">
+                            <span id="date-error" class="text-xs text-danger hidden"></span>
+                        </div>
+
+                        <div class="flex gap-2 pt-2">
+                            <button type="submit" id="submit-btn" class="flex-1 bg-primary hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed">Add Transaction</button>
+                            <button type="button" id="cancel-btn" class="hidden px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Right Column: List & Filters -->
+            <section class="lg:col-span-2 space-y-6">
+                <!-- Filters -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <input type="text" id="search-input" placeholder="Search transactions..." class="md:col-span-2 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:ring-2 focus:ring-primary outline-none">
+                        <select id="filter-type" class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:ring-2 focus:ring-primary outline-none"><option value="all">All Types</option><option value="income">Income</option><option value="expense">Expense</option></select>
+                        <select id="sort-by" class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:ring-2 focus:ring-primary outline-none"><option value="date-desc">Newest First</option><option value="date-asc">Oldest First</option><option value="amount-desc">Highest Amount</option><option value="amount-asc">Lowest Amount</option></select>
+                    </div>
+                </div>
+
+                <!-- List -->
+                <div id="transactions-list" class="space-y-3"></div>
+                <div id="empty-state" class="hidden text-center py-12"><p class="text-gray-500 dark:text-gray-400 text-lg">No transactions found.</p></div>
+            </section>
+        </div>
+    </main>
+
+    <script src="utils.js"></script>
+    <script src="storage.js"></script>
+    <script src="validation.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
