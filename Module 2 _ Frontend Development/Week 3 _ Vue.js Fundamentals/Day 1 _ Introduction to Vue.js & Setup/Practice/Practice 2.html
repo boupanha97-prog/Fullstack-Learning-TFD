@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue Exercise 2: Button Click Counter</title>
+    <!-- Vue 3 CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        [v-cloak] { display: none; }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <div id="app" v-cloak class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md text-center">
+        <h1 class="text-2xl font-bold mb-6 text-indigo-600">Counter App</h1>
+
+        <!-- Display Count -->
+        <div class="mb-8">
+            <span class="text-6xl font-bold text-gray-800">{{ count }}</span>
+            <p class="text-gray-500 mt-2">Current Count</p>
+        </div>
+
+        <!-- Message when count reaches 10 -->
+        <!-- v-if removes the element from the DOM unless the condition is true -->
+        <div v-if="count >= 10" class="mb-6 p-3 bg-green-100 text-green-700 rounded-md font-medium animate-bounce">
+            🎉 You reached the target!
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex justify-center gap-4">
+            <!-- You can run simple expressions directly in @click -->
+            <button 
+                @click="count++" 
+                class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition shadow"
+            >
+                +1
+            </button>
+
+            <!-- Or call a method for specific logic -->
+            <button 
+                @click="addFive" 
+                class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded transition shadow"
+            >
+                +5
+            </button>
+
+            <button 
+                @click="resetCount" 
+                class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition shadow"
+            >
+                Reset
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    count: 0
+                }
+            },
+            methods: {
+                addFive() {
+                    this.count += 5;
+                },
+                resetCount() {
+                    this.count = 0;
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
