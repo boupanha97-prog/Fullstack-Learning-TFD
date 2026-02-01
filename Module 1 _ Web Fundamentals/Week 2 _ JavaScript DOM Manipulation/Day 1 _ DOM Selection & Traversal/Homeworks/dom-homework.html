@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOM Homework</title>
+    <style>
+        .highlight { background-color: yellow; }
+        .important { color: red; font-weight: bold; }
+        .feature { border: 1px solid #ccc; padding: 10px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>DOM Selection & Traversal Homework</h1>
+        <nav id="main-nav">
+            <ul id="main-menu">
+                <li>Home</li>
+                <li>Products
+                    <ul>
+                        <li class="highlight">Electronics
+                            <ul>
+                                <li id="deepest-item">Microcontrollers</li>
+                                <li>Sensors</li>
+                            </ul>
+                        </li>
+                        <li>Clothing</li>
+                        <li>Books</li>
+                    </ul>
+                </li>
+                <li>About</li>
+                <li>Contact</li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="introduction">
+            <h2>Introduction</h2>
+            <p class="highlight">Welcome to our practice page.</p>
+            <p>This page is designed to practice DOM manipulation skills.</p>
+            <ul>
+                <li>Learn Selection</li>
+                <li>Learn Traversal</li>
+                <li>Master the DOM</li>
+            </ul>
+        </section>
+
+        <section id="features">
+            <h2>Features</h2>
+            <div class="feature">
+                <h3>Fast Performance</h3>
+                <p>Our application is optimized for speed.</p>
+            </div>
+            <div class="feature">
+                <h3>Responsive Design</h3>
+                <p class="highlight">Works on all devices.</p>
+            </div>
+            <p class="important">Note: Features are subject to change.</p>
+        </section>
+
+        <section id="contact">
+            <h2>Contact Us</h2>
+            <p>Email us at support@example.com</p>
+        </section>
+    </main>
+
+    <script src="homework.js"></script>
+</body>
+</html>
