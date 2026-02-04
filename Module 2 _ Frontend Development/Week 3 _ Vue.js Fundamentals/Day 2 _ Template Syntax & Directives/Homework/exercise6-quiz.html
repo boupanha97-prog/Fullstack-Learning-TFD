@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 6: Quiz App</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>[v-cloak] { display: none; }</style>
+</head>
+<body class="bg-gradient-to-br from-purple-600 to-blue-500 min-h-screen flex items-center justify-center p-4">
+
+    <div id="app" v-cloak class="w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden min-h-[500px] flex flex-col">
+        
+        <!-- Start Screen -->
+        <div v-if="gameState === 'start'" class="flex-1 flex flex-col items-center justify-center p-10 text-center">
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">🧠 Brain Teaser</h1>
+            <p class="text-gray-600 mb-8">Test your knowledge with 10 questions across various topics.</p>
+            <button @click="startGame" class="bg-purple-600 text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-purple-700 transition shadow-lg transform hover:scale-105">
+                Start Quiz
+            </button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div v-else-if="gameState === 'playing'" class="flex-1 flex flex-col">
+            <!-- Progress Bar -->
+            <div class="h-2 bg-gray-100 w-full">
+                <div class="h-full bg-purple-500 transition-all duration-300" :style="{ width: progressPercentage + '%' }"></div>
+            </div>
+
+            <div class="p-8 flex-grow">
+                <div class="flex justify-between items-center mb-6">
+                    <span class="text-sm font-bold text-purple-600 uppercase tracking-wider">Question {{ currentQuestionIndex + 1 }} / {{ questions.length }}</span>
+                    <span class="text-xs bg-gray-100 px-2 py-1 rounded text-gray-500">{{ currentQuestion.category }}</span>
+                </div>
+
+                <h2 class="text-2xl font-bold text-gray-800 mb-8">{{ currentQuestion.text }}</h2>
+
+                <div class="space-y-3">
+                    <button 
+                        v-for="(option, index) in currentQuestion.options" 
+                        :key="index"
+                        @click="selectAnswer(index)"
+                        :disabled="hasAnswered"
+                        class="w-full text-left p-4 rounded-xl border-2 transition relative"
+                        :class="getOptionClass(index)"
+                    >
+                        <span class="font-bold mr-2">{{ String.fromCharCode(65 + index) }}.</span> {{ option }}
+                        
+                        <!-- Feedback Icon -->
+                        <span v-if="hasAnswered && index === currentQuestion.correct" class="absolute right-4 text-green-600">✓</span>
+                        <span v-if="hasAnswered && index === selectedAnswerIndex && index !== currentQuestion.correct" class="absolute right-4 text-red-600">✗</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-6 bg-gray-50 border-t border-gray-100 flex justify-between items-center">
+                <span class="text-sm text-gray-500" v-if="hasAnswered && !isCorrect">Correct: {{ currentQuestion.options[currentQuestion.correct] }}</span>
+                <span v-else></span>
+                
+                <button 
+                    v-if="hasAnswered" 
+                    @click="nextQuestion" 
+                    class="bg-gray-800 text-white px-6 py-2 rounded-lg font-bold hover:bg-gray-900 transition"
+                >
+                    {{ isLastQuestion ? 'Finish' : 'Next' }}
+                </button>
+                <button 
+                    v-else 
+                    @click="skipQuestion" 
+                    class="text-gray-400 hover:text-gray-600 font-medium"
+                >
+                    Skip
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div v-else-if="gameState === 'results'" class="flex-1 flex flex-col items-center justify-center p-10 text-center">
+            <div class="text-6xl mb-4">{{ scorePercentage >= 70 ? '🎉' : '📚' }}</div>
+            <h2 class="text-3xl font-bold text-gray-800 mb-2">Quiz Completed!</h2>
+            <p class="text-gray-500 mb-6">You scored</p>
+            
+            <div class="text-5xl font-bold mb-2" :class="scorePercentage >= 70 ? 'text-green-500' : 'text-orange-500'">
+                {{ score }} / {{ questions.length }}
+            </div>
+            <p class="text-lg font-medium mb-8">{{ scorePercentage }}% - {{ scorePercentage >= 70 ? 'Passed' : 'Keep Practicing' }}</p>
+
+            <div class="flex gap-4">
+                <button @click="restartGame" class="bg-purple-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-purple-700 transition">Try Again</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    gameState: 'start', // start, playing, results
+                    currentQuestionIndex: 0,
+                    selectedAnswerIndex: null,
+                    score: 0,
+                    questions: [
+                        { text: "What does Vue.js use to bind data to the DOM?", options: ["v-bind", "Mustache Syntax {{}}", "v-model", "All of the above"], correct: 3, category: "Vue.js" },
+                        { text: "Which directive is used for conditional rendering?", options: ["v-for", "v-if", "v-on", "v-bind"], correct: 1, category: "Vue.js" },
+                        { text: "What is the capital of France?", options: ["London", "Berlin", "Madrid", "Paris"], correct: 3, category: "Geography" },
+                        { text: "Which planet is known as the Red Planet?", options: ["Venus", "Mars", "Jupiter", "Saturn"], correct: 1, category: "Science" },
+                        { text: "What is 2 + 2 * 2?", options: ["6", "8", "4", "10"], correct: 0, category: "Math" },
+                        { text: "Who wrote 'Romeo and Juliet'?", options: ["Charles Dickens", "Jane Austen", "William Shakespeare", "Mark Twain"], correct: 2, category: "Literature" },
+                        { text: "Which HTML tag is used for the largest heading?", options: ["<h6>", "<head>", "<h1>", "<header>"], correct: 2, category: "HTML" },
+                        { text: "What does CSS stand for?", options: ["Creative Style Sheets", "Cascading Style Sheets", "Computer Style Sheets", "Colorful Style Sheets"], correct: 1, category: "CSS" },
+                        { text: "Which year did the Titanic sink?", options: ["1912", "1905", "1920", "1898"], correct: 0, category: "History" },
+                        { text: "What is the chemical symbol for Gold?", options: ["Ag", "Fe", "Au", "Pb"], correct: 2, category: "Science" },
+                    ]
+                }
+            },
+            computed: {
+                currentQuestion() {
+                    return this.questions[this.currentQuestionIndex];
+                },
+                hasAnswered() {
+                    return this.selectedAnswerIndex !== null;
+                },
+                isCorrect() {
+                    return this.hasAnswered && this.selectedAnswerIndex === this.currentQuestion.correct;
+                },
+                isLastQuestion() {
+                    return this.currentQuestionIndex === this.questions.length - 1;
+                },
+                progressPercentage() {
+                    return ((this.currentQuestionIndex + 1) / this.questions.length) * 100;
+                },
+                scorePercentage() {
+                    return Math.round((this.score / this.questions.length) * 100);
+                }
+            },
+            methods: {
+                startGame() {
+                    this.gameState = 'playing';
+                    this.currentQuestionIndex = 0;
+                    this.score = 0;
+                    this.selectedAnswerIndex = null;
+                },
+                selectAnswer(index) {
+                    if (this.hasAnswered) return;
+                    this.selectedAnswerIndex = index;
+                    if (index === this.currentQuestion.correct) {
+                        this.score++;
+                    }
+                },
+                nextQuestion() {
+                    if (this.isLastQuestion) {
+                        this.gameState = 'results';
+                    } else {
+                        this.currentQuestionIndex++;
+                        this.selectedAnswerIndex = null;
+                    }
+                },
+                skipQuestion() {
+                    this.nextQuestion();
+                },
+                restartGame() {
+                    this.startGame();
+                },
+                getOptionClass(index) {
+                    if (!this.hasAnswered) {
+                        return 'border-gray-200 hover:border-purple-500 hover:bg-purple-50 cursor-pointer';
+                    }
+                    
+                    // Correct answer (always show green)
+                    if (index === this.currentQuestion.correct) {
+                        return 'bg-green-100 border-green-500 text-green-800';
+                    }
+                    
+                    // Wrong selection (show red)
+                    if (index === this.selectedAnswerIndex) {
+                        return 'bg-red-100 border-red-500 text-red-800';
+                    }
+                    
+                    // Other options (fade out)
+                    return 'border-gray-200 opacity-50';
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

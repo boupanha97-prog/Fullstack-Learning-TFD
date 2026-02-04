@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 1: Card Component</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-8 flex items-center justify-center">
+    <div id="app" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Using the component multiple times with different data -->
+        <product-card 
+            title="Mountain View" 
+            description="A breathtaking view of the snowy peaks." 
+            image="https://images.unsplash.com/photo-1519681393784-d120267933ba?w=400">
+        </product-card>
+
+        <product-card 
+            title="Ocean Sunset" 
+            description="Relaxing sunset over the calm ocean waves." 
+            image="https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=400">
+        </product-card>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        const app = createApp({});
+
+        // Define the component
+        app.component('product-card', {
+            props: ['title', 'description', 'image'],
+            data() {
+                return {
+                    clicks: 0
+                }
+            },
+            template: `
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden max-w-sm hover:shadow-xl transition-shadow duration-300">
+                    <div class="h-48 overflow-hidden">
+                        <img :src="image" :alt="title" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">{{ title }}</h3>
+                        <p class="text-gray-600 mb-4">{{ description }}</p>
+                        
+                        <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-100">
+                            <button 
+                                @click="clicks++" 
+                                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition active:scale-95 flex items-center gap-2"
+                            >
+                                <span>Interested</span>
+                                <span v-if="clicks > 0" class="bg-white text-blue-600 text-xs font-bold px-2 py-0.5 rounded-full">
+                                    {{ clicks }}
+                                </span>
+                            </button>
+                            <span class="text-sm text-gray-400" v-if="clicks > 0">
+                                Clicked {{ clicks }} times
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `
+        });
+
+        app.mount('#app');
+    </script>
+</body>
+</html>

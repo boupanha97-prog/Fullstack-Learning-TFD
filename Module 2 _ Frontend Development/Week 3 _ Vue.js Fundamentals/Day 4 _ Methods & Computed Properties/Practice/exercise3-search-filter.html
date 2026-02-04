@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 3: Search Filter</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen p-8">
+    <div id="app" class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+        
+        <!-- Main Content -->
+        <div class="md:col-span-2 space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-sm">
+                <h1 class="text-2xl font-bold text-gray-800 mb-4">Tech Glossary</h1>
+                <input 
+                    v-model="searchQuery" 
+                    type="text" 
+                    placeholder="Search terms..." 
+                    class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
+                >
+            </div>
+
+            <div class="grid grid-cols-1 gap-4">
+                <div v-for="item in filteredItems" :key="item" class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-500 hover:shadow-md transition">
+                    <p class="font-medium text-gray-800">{{ item }}</p>
+                </div>
+                <div v-if="filteredItems.length === 0" class="text-center py-8 text-gray-500">
+                    No items found matching "{{ searchQuery }}"
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar: History -->
+        <div class="md:col-span-1">
+            <div class="bg-white p-6 rounded-xl shadow-sm sticky top-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="font-bold text-gray-700">Search History</h2>
+                    <button @click="history = []" class="text-xs text-red-500 hover:underline">Clear</button>
+                </div>
+                
+                <div class="space-y-2 max-h-[500px] overflow-y-auto">
+                    <div v-if="history.length === 0" class="text-sm text-gray-400 italic">No recent searches.</div>
+                    <div v-for="(entry, index) in history" :key="index" class="text-sm border-b border-gray-100 pb-2 last:border-0">
+                        <p class="font-medium text-gray-800">"{{ entry.term }}"</p>
+                        <p class="text-xs text-gray-400">{{ entry.time }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        createApp({
+            data() {
+                return {
+                    searchQuery: '',
+                    items: [
+                        'API (Application Programming Interface)', 'Bootstrap', 'CSS (Cascading Style Sheets)', 
+                        'DOM (Document Object Model)', 'ES6 (ECMAScript 2015)', 'Framework', 'Git', 
+                        'HTML (HyperText Markup Language)', 'IDE (Integrated Development Environment)', 
+                        'JSON (JavaScript Object Notation)', 'Kubernetes', 'Local Storage', 'MVC (Model View Controller)',
+                        'Node.js', 'Open Source', 'Python', 'Query', 'React', 'SQL', 'Tailwind CSS', 'UI/UX', 'Vue.js', 'Webpack', 'XML'
+                    ],
+                    history: []
+                }
+            },
+            computed: {
+                filteredItems() {
+                    return this.items.filter(item => item.toLowerCase().includes(this.searchQuery.toLowerCase()));
+                }
+            },
+            watch: {
+                searchQuery(newVal) {
+                    if (newVal.trim()) {
+                        // Add to history
+                        this.history.unshift({
+                            term: newVal,
+                            time: new Date().toLocaleTimeString()
+                        });
+                        // Keep history manageable
+                        if (this.history.length > 10) this.history.pop();
+                    }
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

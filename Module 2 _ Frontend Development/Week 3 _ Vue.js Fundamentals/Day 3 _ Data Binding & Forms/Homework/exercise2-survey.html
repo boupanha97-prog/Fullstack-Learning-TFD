@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 2: Multi-step Survey</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-blue-50 min-h-screen flex items-center justify-center p-4">
+    <div id="app" class="w-full max-w-2xl bg-white rounded-2xl shadow-xl overflow-hidden">
+        
+        <!-- Progress Steps -->
+        <div class="bg-blue-600 p-6">
+            <div class="flex justify-between mb-2 text-blue-100 text-sm font-bold uppercase tracking-wider">
+                <span>Step {{ currentStep }} of 3</span>
+                <span>{{ stepTitle }}</span>
+            </div>
+            <div class="h-2 bg-blue-800 rounded-full">
+                <div class="h-full bg-white rounded-full transition-all duration-500" :style="{ width: (currentStep / 3) * 100 + '%' }"></div>
+            </div>
+        </div>
+
+        <div class="p-8">
+            <!-- Step 1: Personal Info -->
+            <div v-if="currentStep === 1" class="space-y-6 animate-fade-in">
+                <h2 class="text-2xl font-bold text-gray-800">Tell us about yourself</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Full Name</label>
+                        <input v-model.trim="survey.name" type="text" class="w-full border p-3 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Email</label>
+                        <input v-model.trim="survey.email" type="email" class="w-full border p-3 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Age</label>
+                        <input v-model.number="survey.age" type="number" class="w-full border p-3 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Role</label>
+                        <select v-model="survey.role" class="w-full border p-3 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                            <option value="" disabled>Select Role</option>
+                            <option>Developer</option>
+                            <option>Designer</option>
+                            <option>Manager</option>
+                            <option>Student</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Feedback -->
+            <div v-else-if="currentStep === 2" class="space-y-6 animate-fade-in">
+                <h2 class="text-2xl font-bold text-gray-800">Your Feedback</h2>
+                
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Satisfaction Level</label>
+                    <div class="flex justify-between bg-gray-50 p-4 rounded-lg">
+                        <label v-for="n in 5" :key="n" class="flex flex-col items-center cursor-pointer">
+                            <input type="radio" v-model.number="survey.satisfaction" :value="n" class="mb-1 w-5 h-5 text-blue-600">
+                            <span class="text-sm text-gray-600">{{ n }}</span>
+                        </label>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-400 px-2 mt-1">
+                        <span>Poor</span>
+                        <span>Excellent</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Features Used (Select all that apply)</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label v-for="feat in ['Dashboard', 'Reports', 'API', 'Mobile App', 'Support']" :key="feat" class="flex items-center space-x-2 p-2 border rounded hover:bg-gray-50 cursor-pointer" :class="{'border-blue-500 bg-blue-50': survey.features.includes(feat)}">
+                            <input type="checkbox" v-model="survey.features" :value="feat" class="text-blue-600 rounded">
+                            <span>{{ feat }}</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Review & Submit -->
+            <div v-else class="space-y-6 animate-fade-in">
+                <h2 class="text-2xl font-bold text-gray-800">Review & Comments</h2>
+                
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Additional Comments</label>
+                    <textarea v-model.trim="survey.comments" rows="4" class="w-full border p-3 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" placeholder="Any suggestions?"></textarea>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-lg text-sm space-y-2 border border-gray-200">
+                    <h3 class="font-bold text-gray-700 border-b pb-2 mb-2">Summary</h3>
+                    <p><span class="text-gray-500">Name:</span> {{ survey.name }}</p>
+                    <p><span class="text-gray-500">Email:</span> {{ survey.email }}</p>
+                    <p><span class="text-gray-500">Role:</span> {{ survey.role }}</p>
+                    <p><span class="text-gray-500">Satisfaction:</span> {{ survey.satisfaction }}/5</p>
+                    <p><span class="text-gray-500">Features:</span> {{ survey.features.join(', ') || 'None' }}</p>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex justify-between mt-8 pt-6 border-t">
+                <button 
+                    v-if="currentStep > 1" 
+                    @click="currentStep--" 
+                    class="px-6 py-2 text-gray-600 font-bold hover:bg-gray-100 rounded-lg transition"
+                >
+                    Back
+                </button>
+                <div v-else></div> <!-- Spacer -->
+
+                <button 
+                    v-if="currentStep < 3" 
+                    @click="nextStep" 
+                    class="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    :disabled="!isStepValid"
+                >
+                    Next Step
+                </button>
+                <button 
+                    v-else 
+                    @click="submitSurvey" 
+                    class="px-6 py-2 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition"
+                >
+                    Submit Survey
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        createApp({
+            data() {
+                return {
+                    currentStep: 1,
+                    survey: { name: '', email: '', age: null, role: '', satisfaction: null, features: [], comments: '' }
+                }
+            },
+            computed: {
+                stepTitle() { return ['Personal Info', 'Feedback', 'Review'][this.currentStep - 1]; },
+                isStepValid() {
+                    if (this.currentStep === 1) return this.survey.name && this.survey.email && this.survey.role;
+                    if (this.currentStep === 2) return this.survey.satisfaction !== null;
+                    return true;
+                }
+            },
+            methods: {
+                nextStep() { if (this.isStepValid) this.currentStep++; },
+                submitSurvey() { alert('Survey Submitted!\n' + JSON.stringify(this.survey, null, 2)); }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

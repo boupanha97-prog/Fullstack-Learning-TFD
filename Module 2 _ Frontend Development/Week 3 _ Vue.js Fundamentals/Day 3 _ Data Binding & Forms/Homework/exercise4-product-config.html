@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 4: Laptop Configurator</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 min-h-screen text-gray-100 p-8">
+    <div id="app" class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Configurator -->
+        <div class="lg:col-span-2 space-y-8">
+            <header>
+                <h1 class="text-4xl font-bold text-blue-400 mb-2">TechPro X1 Configurator</h1>
+                <p class="text-gray-400">Build your ultimate workstation.</p>
+            </header>
+
+            <!-- Processor -->
+            <section class="bg-gray-800 p-6 rounded-xl border border-gray-700">
+                <h2 class="text-xl font-bold mb-4 text-white">Processor</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <label v-for="cpu in options.processors" :key="cpu.name" class="flex justify-between items-center p-4 border border-gray-600 rounded-lg cursor-pointer hover:bg-gray-700 transition" :class="{'border-blue-500 bg-gray-750 ring-1 ring-blue-500': config.processor === cpu}">
+                        <div class="flex items-center">
+                            <input type="radio" v-model="config.processor" :value="cpu" class="mr-3 text-blue-500 focus:ring-blue-500 bg-gray-700 border-gray-500">
+                            <span class="font-medium">{{ cpu.name }}</span>
+                        </div>
+                        <span class="text-blue-300">+${{ cpu.price }}</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- RAM -->
+            <section class="bg-gray-800 p-6 rounded-xl border border-gray-700">
+                <h2 class="text-xl font-bold mb-4 text-white">Memory (RAM)</h2>
+                <div class="flex flex-wrap gap-4">
+                    <label v-for="ram in options.ram" :key="ram.size" class="flex-1 min-w-[120px] p-4 border border-gray-600 rounded-lg cursor-pointer hover:bg-gray-700 text-center transition" :class="{'border-blue-500 bg-gray-750': config.ram === ram}">
+                        <input type="radio" v-model="config.ram" :value="ram" class="hidden">
+                        <div class="font-bold text-lg">{{ ram.size }}</div>
+                        <div class="text-sm text-blue-300">+${{ ram.price }}</div>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Storage -->
+            <section class="bg-gray-800 p-6 rounded-xl border border-gray-700">
+                <h2 class="text-xl font-bold mb-4 text-white">Storage</h2>
+                <div class="space-y-3">
+                    <label v-for="drive in options.storage" :key="drive.name" class="flex items-center p-3 rounded hover:bg-gray-700 cursor-pointer">
+                        <input type="checkbox" v-model="config.storage" :value="drive" class="w-5 h-5 text-blue-500 rounded bg-gray-700 border-gray-500 focus:ring-blue-500">
+                        <span class="ml-3 flex-grow">{{ drive.name }}</span>
+                        <span class="text-blue-300">+${{ drive.price }}</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Accessories -->
+            <section class="bg-gray-800 p-6 rounded-xl border border-gray-700">
+                <h2 class="text-xl font-bold mb-4 text-white">Accessories</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <label v-for="acc in options.accessories" :key="acc.name" class="flex items-center p-3 border border-gray-600 rounded-lg hover:bg-gray-700 cursor-pointer" :class="{'border-blue-500': config.accessories.includes(acc)}">
+                        <input type="checkbox" v-model="config.accessories" :value="acc" class="w-4 h-4 text-blue-500 rounded bg-gray-700 border-gray-500">
+                        <span class="ml-2 text-sm flex-grow">{{ acc.name }}</span>
+                        <span class="text-xs text-blue-300">+${{ acc.price }}</span>
+                    </label>
+                </div>
+            </section>
+        </div>
+
+        <!-- Summary Sidebar -->
+        <div class="lg:col-span-1">
+            <div class="bg-white text-gray-900 p-6 rounded-xl shadow-2xl sticky top-8">
+                <h2 class="text-2xl font-bold mb-6 border-b pb-4">Order Summary</h2>
+                
+                <div class="space-y-3 text-sm mb-6">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Base Price</span>
+                        <span class="font-bold">$1000</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Processor</span>
+                        <span>+${{ config.processor.price }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">RAM</span>
+                        <span>+${{ config.ram.price }}</span>
+                    </div>
+                    <div v-if="storageTotal > 0" class="flex justify-between">
+                        <span class="text-gray-600">Storage</span>
+                        <span>+${{ storageTotal }}</span>
+                    </div>
+                    <div v-if="accessoriesTotal > 0" class="flex justify-between">
+                        <span class="text-gray-600">Accessories</span>
+                        <span>+${{ accessoriesTotal }}</span>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-200 pt-4 mb-6">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xl font-bold">Total</span>
+                        <span class="text-3xl font-bold text-blue-600">${{ totalPrice }}</span>
+                    </div>
+                </div>
+
+                <button class="w-full bg-blue-600 text-white font-bold py-4 rounded-lg hover:bg-blue-700 transition shadow-lg text-lg">
+                    Add to Cart
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        createApp({
+            data() {
+                return {
+                    options: {
+                        processors: [{name: 'Intel i3', price: 300}, {name: 'Intel i5', price: 450}, {name: 'Intel i7', price: 650}, {name: 'Intel i9', price: 900}],
+                        ram: [{size: '8GB', price: 50}, {size: '16GB', price: 100}, {size: '32GB', price: 200}, {size: '64GB', price: 400}],
+                        storage: [{name: '256GB SSD', price: 80}, {name: '512GB SSD', price: 120}, {name: '1TB SSD', price: 200}, {name: '2TB HDD', price: 100}],
+                        accessories: [{name: 'Wireless Mouse', price: 25}, {name: 'Keyboard', price: 45}, {name: 'Laptop Bag', price: 30}, {name: 'Monitor', price: 250}]
+                    },
+                    config: { processor: {price: 300}, ram: {price: 50}, storage: [], accessories: [] }
+                }
+            },
+            computed: {
+                storageTotal() { return this.config.storage.reduce((sum, item) => sum + item.price, 0); },
+                accessoriesTotal() { return this.config.accessories.reduce((sum, item) => sum + item.price, 0); },
+                totalPrice() { return 1000 + this.config.processor.price + this.config.ram.price + this.storageTotal + this.accessoriesTotal; }
+            },
+            created() { this.config.processor = this.options.processors[0]; this.config.ram = this.options.ram[0]; }
+        }).mount('#app');
+    </script>
+</body>
+</html>

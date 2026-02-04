@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 5: Social Feed</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+    <div id="app" class="min-h-screen flex flex-col">
+        
+        <social-nav></social-nav>
+
+        <div class="container mx-auto px-4 pt-20 pb-8 flex gap-8 justify-center">
+            
+            <!-- Main Feed -->
+            <main class="w-full max-w-xl space-y-6">
+                <stories-bar :users="storyUsers"></stories-bar>
+                <post-creator></post-creator>
+                <feed-post v-for="post in posts" :key="post.id" :post="post"></feed-post>
+            </main>
+
+            <!-- Sidebar -->
+            <aside class="hidden lg:block w-80 space-y-6">
+                <suggested-users :users="suggestions"></suggested-users>
+            </aside>
+
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        const app = createApp({
+            data() {
+                return {
+                    storyUsers: [
+                        { name: 'You', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=You', hasStory: false },
+                        { name: 'Sarah', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah', hasStory: true },
+                        { name: 'Mike', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mike', hasStory: true },
+                        { name: 'Jessica', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Jessica', hasStory: true },
+                        { name: 'David', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=David', hasStory: false }
+                    ],
+                    posts: [
+                        {
+                            id: 1,
+                            user: { name: 'Sarah Jenkins', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah' },
+                            time: '2 hours ago',
+                            content: 'Just finished a 10k run! Feeling energized. 🏃‍♀️💪',
+                            image: 'https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=600',
+                            likes: 45,
+                            comments: 12
+                        },
+                        {
+                            id: 2,
+                            user: { name: 'Mike Ross', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mike' },
+                            time: '4 hours ago',
+                            content: 'Anyone know a good place for sushi downtown?',
+                            likes: 8,
+                            comments: 24
+                        }
+                    ],
+                    suggestions: [
+                        { name: 'Emily Blunt', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Emily', mutuals: 12 },
+                        { name: 'John Krasinski', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=John', mutuals: 8 }
+                    ]
+                }
+            }
+        });
+
+        // 1. Nav Bar
+        app.component('social-nav', {
+            template: `
+                <nav class="bg-white shadow-sm fixed top-0 w-full z-50 h-16">
+                    <div class="container mx-auto px-4 h-full flex justify-between items-center">
+                        <div class="text-2xl font-bold text-blue-600"><i class="fab fa-facebook"></i></div>
+                        <div class="hidden md:flex bg-gray-100 rounded-full px-4 py-2 w-96">
+                            <input type="text" placeholder="Search Facebook" class="bg-transparent outline-none w-full text-sm">
+                        </div>
+                        <div class="flex gap-6 text-xl text-gray-500">
+                            <button class="hover:text-blue-600 relative"><i class="fas fa-home"></i></button>
+                            <button class="hover:text-blue-600 relative"><i class="fas fa-user-friends"></i></button>
+                            <button class="hover:text-blue-600 relative">
+                                <i class="fas fa-bell"></i>
+                                <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">3</span>
+                            </button>
+                            <button class="hover:text-blue-600 relative"><i class="fas fa-user-circle"></i></button>
+                        </div>
+                    </div>
+                </nav>
+            `
+        });
+
+        // 2. Stories Bar
+        app.component('stories-bar', {
+            props: ['users'],
+            template: `
+                <div class="bg-white p-4 rounded-xl shadow-sm flex gap-4 overflow-x-auto">
+                    <div v-for="(user, i) in users" :key="i" class="flex flex-col items-center cursor-pointer min-w-[60px]">
+                        <div class="relative p-1 rounded-full" :class="user.hasStory ? 'bg-gradient-to-tr from-yellow-400 to-blue-600' : 'bg-gray-200'">
+                            <img :src="user.avatar" class="w-14 h-14 rounded-full border-2 border-white bg-white">
+                            <div v-if="i === 0" class="absolute bottom-0 right-0 bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center border-2 border-white text-xs">
+                                <i class="fas fa-plus"></i>
+                            </div>
+                        </div>
+                        <span class="text-xs mt-1 font-medium truncate w-16 text-center">{{ user.name }}</span>
+                    </div>
+                </div>
+            `
+        });
+
+        // 3. Post Creator
+        app.component('post-creator', {
+            template: `
+                <div class="bg-white p-4 rounded-xl shadow-sm">
+                    <div class="flex gap-3 mb-4">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=You" class="w-10 h-10 rounded-full bg-gray-200">
+                        <input type="text" placeholder="What's on your mind?" class="bg-gray-100 rounded-full px-4 py-2 w-full outline-none hover:bg-gray-200 transition cursor-pointer">
+                    </div>
+                    <div class="border-t pt-3 flex justify-between px-4">
+                        <button class="flex items-center gap-2 text-gray-500 hover:bg-gray-100 px-4 py-2 rounded-lg transition">
+                            <i class="fas fa-video text-red-500"></i> Live Video
+                        </button>
+                        <button class="flex items-center gap-2 text-gray-500 hover:bg-gray-100 px-4 py-2 rounded-lg transition">
+                            <i class="fas fa-images text-green-500"></i> Photo/Video
+                        </button>
+                        <button class="flex items-center gap-2 text-gray-500 hover:bg-gray-100 px-4 py-2 rounded-lg transition">
+                            <i class="fas fa-smile text-yellow-500"></i> Feeling
+                        </button>
+                    </div>
+                </div>
+            `
+        });
+
+        // 4. Feed Post
+        app.component('feed-post', {
+            props: ['post'],
+            data() {
+                return { liked: false, likesCount: this.post.likes }
+            },
+            template: `
+                <div class="bg-white rounded-xl shadow-sm">
+                    <!-- Header -->
+                    <div class="p-4 flex justify-between items-start">
+                        <div class="flex gap-3">
+                            <img :src="post.user.avatar" class="w-10 h-10 rounded-full bg-gray-200">
+                            <div>
+                                <h4 class="font-bold text-gray-900 hover:underline cursor-pointer">{{ post.user.name }}</h4>
+                                <p class="text-xs text-gray-500">{{ post.time }} • <i class="fas fa-globe-americas"></i></p>
+                            </div>
+                        </div>
+                        <button class="text-gray-500 hover:bg-gray-100 w-8 h-8 rounded-full"><i class="fas fa-ellipsis-h"></i></button>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="px-4 pb-2">
+                        <p class="text-gray-800 mb-3">{{ post.content }}</p>
+                    </div>
+                    <img v-if="post.image" :src="post.image" class="w-full h-auto object-cover">
+
+                    <!-- Stats -->
+                    <div class="px-4 py-2 flex justify-between text-sm text-gray-500 border-b mx-4">
+                        <div class="flex items-center gap-1">
+                            <span class="bg-blue-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]"><i class="fas fa-thumbs-up"></i></span>
+                            {{ likesCount }}
+                        </div>
+                        <div class="flex gap-3">
+                            <span>{{ post.comments }} comments</span>
+                            <span>2 shares</span>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="px-2 py-1 flex justify-between">
+                        <button 
+                            @click="liked = !liked; likesCount += liked ? 1 : -1" 
+                            class="flex-1 py-2 rounded-lg hover:bg-gray-100 font-medium text-gray-600 transition flex items-center justify-center gap-2"
+                            :class="{'text-blue-600': liked}"
+                        >
+                            <i :class="liked ? 'fas fa-thumbs-up' : 'far fa-thumbs-up'"></i> Like
+                        </button>
+                        <button class="flex-1 py-2 rounded-lg hover:bg-gray-100 font-medium text-gray-600 transition flex items-center justify-center gap-2">
+                            <i class="far fa-comment-alt"></i> Comment
+                        </button>
+                        <button class="flex-1 py-2 rounded-lg hover:bg-gray-100 font-medium text-gray-600 transition flex items-center justify-center gap-2">
+                            <i class="fas fa-share"></i> Share
+                        </button>
+                    </div>
+                </div>
+            `
+        });
+
+        // 5. Suggested Users
+        app.component('suggested-users', {
+            props: ['users'],
+            template: `
+                <div class="bg-white p-4 rounded-xl shadow-sm">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-gray-500">Suggested for you</h3>
+                        <button class="text-blue-600 text-sm font-bold">See All</button>
+                    </div>
+                    <div class="space-y-4">
+                        <div v-for="user in users" :key="user.name" class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <img :src="user.avatar" class="w-10 h-10 rounded-full bg-gray-200">
+                                <div>
+                                    <h4 class="font-bold text-sm">{{ user.name }}</h4>
+                                    <p class="text-xs text-gray-500">{{ user.mutuals }} mutual friends</p>
+                                </div>
+                            </div>
+                            <button class="text-blue-600 text-xs font-bold hover:bg-blue-50 px-2 py-1 rounded">Follow</button>
+                        </div>
+                    </div>
+                </div>
+            `
+        });
+
+        app.mount('#app');
+    </script>
+</body>
+</html>

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 1: Component Library</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen p-8">
+    <div id="app" class="max-w-6xl mx-auto space-y-12">
+        
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Vue Component Library</h1>
+            <p class="text-gray-600">Reusable UI components built with Vue 3</p>
+        </header>
+
+        <!-- 1. Buttons -->
+        <section class="bg-white p-6 rounded-xl shadow-sm">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">1. Buttons</h2>
+            <div class="flex flex-wrap gap-4 items-end">
+                <custom-button label="Primary Small" color="primary" size="small"></custom-button>
+                <custom-button label="Secondary Medium" color="secondary" size="medium"></custom-button>
+                <custom-button label="Danger Large" color="danger" size="large"></custom-button>
+            </div>
+        </section>
+
+        <!-- 2. Cards -->
+        <section class="bg-white p-6 rounded-xl shadow-sm">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">2. Info Cards</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <info-card 
+                    title="Beautiful Landscape" 
+                    image-url="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400"
+                    content="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.">
+                    <template #footer>
+                        <span class="text-xs text-gray-500">Posted 2 mins ago</span>
+                    </template>
+                </info-card>
+                <info-card 
+                    title="Tech Innovation" 
+                    content="Technology is evolving at a rapid pace. From AI to quantum computing, the future is bright and full of possibilities. Stay tuned for more updates.">
+                    <template #header>
+                        <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">News</span>
+                    </template>
+                </info-card>
+            </div>
+        </section>
+
+        <!-- 3. Alerts -->
+        <section class="bg-white p-6 rounded-xl shadow-sm">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">3. Alerts</h2>
+            <div class="space-y-4">
+                <alert-box type="info" message="This is an informational message."></alert-box>
+                <alert-box type="success" message="Operation completed successfully!"></alert-box>
+                <alert-box type="warning" message="Warning: Please check your inputs."></alert-box>
+                <alert-box type="error" message="Error: Something went wrong."></alert-box>
+            </div>
+        </section>
+
+        <!-- 4. Badges & Avatars -->
+        <section class="bg-white p-6 rounded-xl shadow-sm">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">4. Badges & Avatars</h2>
+            <div class="flex flex-wrap gap-8 items-center">
+                <div class="space-y-2">
+                    <h3 class="font-bold text-sm text-gray-500">Badges</h3>
+                    <div class="flex gap-2">
+                        <status-badge status="active" text="Active"></status-badge>
+                        <status-badge status="pending" text="Pending"></status-badge>
+                        <status-badge status="inactive" text="Inactive"></status-badge>
+                        <status-badge status="completed" text="Completed"></status-badge>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <h3 class="font-bold text-sm text-gray-500">Avatars</h3>
+                    <div class="flex gap-4 items-end">
+                        <user-avatar size="small" name="John Doe" image-url="https://api.dicebear.com/7.x/avataaars/svg?seed=John"></user-avatar>
+                        <user-avatar size="medium" name="Jane Smith" image-url="https://api.dicebear.com/7.x/avataaars/svg?seed=Jane"></user-avatar>
+                        <user-avatar size="large" name="Bob Wilson"></user-avatar> <!-- Initials fallback -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. Progress Bars -->
+        <section class="bg-white p-6 rounded-xl shadow-sm">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">5. Progress Bars</h2>
+            <div class="space-y-6">
+                <progress-bar label="Downloading..." :current="25" :max="100"></progress-bar>
+                <progress-bar label="Processing..." :current="60" :max="100"></progress-bar>
+                <progress-bar label="Completed" :current="95" :max="100"></progress-bar>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        const app = createApp({});
+
+        // 1. Button Component
+        app.component('custom-button', {
+            props: {
+                label: String,
+                color: { type: String, default: 'primary' },
+                size: { type: String, default: 'medium' }
+            },
+            data() { return { clicks: 0 } },
+            computed: {
+                classes() {
+                    const base = "rounded font-bold transition focus:outline-none focus:ring-2 focus:ring-offset-2";
+                    const colors = {
+                        primary: "bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500",
+                        secondary: "bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-gray-500",
+                        danger: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500"
+                    };
+                    const sizes = {
+                        small: "px-3 py-1 text-sm",
+                        medium: "px-4 py-2 text-base",
+                        large: "px-6 py-3 text-lg"
+                    };
+                    return `${base} ${colors[this.color]} ${sizes[this.size]}`;
+                }
+            },
+            template: `
+                <button :class="classes" @click="clicks++; $emit('click')">
+                    {{ label }} <span v-if="clicks > 0" class="ml-1 opacity-75 text-xs">({{ clicks }})</span>
+                </button>
+            `
+        });
+
+        // 2. Card Component
+        app.component('info-card', {
+            props: ['title', 'content', 'imageUrl'],
+            data() { return { expanded: false } },
+            computed: {
+                displayContent() {
+                    if (this.expanded) return this.content;
+                    return this.content.length > 100 ? this.content.substring(0, 100) + '...' : this.content;
+                }
+            },
+            template: `
+                <div class="bg-white border rounded-lg overflow-hidden hover:shadow-md transition">
+                    <img v-if="imageUrl" :src="imageUrl" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <div class="mb-2 flex justify-between items-center">
+                            <h3 class="font-bold text-lg">{{ title }}</h3>
+                            <slot name="header"></slot>
+                        </div>
+                        <p class="text-gray-600 mb-4">{{ displayContent }}</p>
+                        <button 
+                            v-if="content.length > 100"
+                            @click="expanded = !expanded" 
+                            class="text-blue-600 text-sm font-medium hover:underline mb-4"
+                        >
+                            {{ expanded ? 'Show Less' : 'Read More' }}
+                        </button>
+                        <div class="border-t pt-2 mt-2">
+                            <slot name="footer"></slot>
+                        </div>
+                    </div>
+                </div>
+            `
+        });
+
+        // 3. Alert Component
+        app.component('alert-box', {
+            props: {
+                message: String,
+                type: { type: String, default: 'info' } // info, success, warning, error
+            },
+            data() { return { visible: true } },
+            computed: {
+                classes() {
+                    const map = {
+                        info: "bg-blue-100 text-blue-800 border-blue-200",
+                        success: "bg-green-100 text-green-800 border-green-200",
+                        warning: "bg-yellow-100 text-yellow-800 border-yellow-200",
+                        error: "bg-red-100 text-red-800 border-red-200"
+                    };
+                    return `p-4 rounded-lg border flex justify-between items-center ${map[this.type]}`;
+                },
+                icon() {
+                    const map = { info: 'fa-info-circle', success: 'fa-check-circle', warning: 'fa-exclamation-triangle', error: 'fa-times-circle' };
+                    return map[this.type];
+                }
+            },
+            template: `
+                <div v-if="visible" :class="classes">
+                    <div class="flex items-center gap-3">
+                        <i class="fas" :class="icon"></i>
+                        <span>{{ message }}</span>
+                    </div>
+                    <button @click="visible = false" class="hover:opacity-75"><i class="fas fa-times"></i></button>
+                </div>
+            `
+        });
+
+        // 4. Badge Component
+        app.component('status-badge', {
+            props: ['text', 'status'],
+            computed: {
+                classes() {
+                    const map = {
+                        active: "bg-green-100 text-green-800",
+                        pending: "bg-yellow-100 text-yellow-800",
+                        inactive: "bg-gray-100 text-gray-800",
+                        completed: "bg-blue-100 text-blue-800"
+                    };
+                    return `px-2.5 py-0.5 rounded-full text-xs font-medium ${map[this.status] || map.inactive}`;
+                }
+            },
+            template: `<span :class="classes">{{ text }}</span>`
+        });
+
+        // 5. Progress Bar Component
+        app.component('progress-bar', {
+            props: ['current', 'max', 'label'],
+            computed: {
+                percentage() {
+                    return Math.min(100, Math.max(0, (this.current / this.max) * 100));
+                },
+                colorClass() {
+                    if (this.percentage < 30) return 'bg-red-500';
+                    if (this.percentage < 70) return 'bg-yellow-500';
+                    return 'bg-green-500';
+                }
+            },
+            template: `
+                <div>
+                    <div class="flex justify-between mb-1">
+                        <span class="text-sm font-medium text-gray-700">{{ label }}</span>
+                        <span class="text-sm font-medium text-gray-700">{{ Math.round(percentage) }}%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div class="h-2.5 rounded-full transition-all duration-500" :class="colorClass" :style="{ width: percentage + '%' }"></div>
+                    </div>
+                </div>
+            `
+        });
+
+        // 6. Avatar Component
+        app.component('user-avatar', {
+            props: {
+                name: String,
+                imageUrl: String,
+                size: { type: String, default: 'medium' }
+            },
+            computed: {
+                sizeClasses() {
+                    const map = { small: 'w-8 h-8 text-xs', medium: 'w-12 h-12 text-sm', large: 'w-16 h-16 text-lg' };
+                    return map[this.size];
+                },
+                initials() {
+                    return this.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                }
+            },
+            template: `
+                <div class="relative inline-block">
+                    <img 
+                        v-if="imageUrl" 
+                        :src="imageUrl" 
+                        :alt="name" 
+                        class="rounded-full object-cover border-2 border-white shadow-sm"
+                        :class="sizeClasses"
+                    >
+                    <div 
+                        v-else 
+                        class="rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold border-2 border-white shadow-sm"
+                        :class="sizeClasses"
+                    >
+                        {{ initials }}
+                    </div>
+                    <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-400 border-2 border-white rounded-full"></span>
+                </div>
+            `
+        });
+
+        app.mount('#app');
+    </script>
+</body>
+</html>

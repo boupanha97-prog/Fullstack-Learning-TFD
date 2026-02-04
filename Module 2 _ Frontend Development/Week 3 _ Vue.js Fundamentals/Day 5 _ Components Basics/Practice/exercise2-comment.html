@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 2: Comment Component</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen p-8 flex justify-center">
+    <div id="app" class="w-full max-w-2xl space-y-4">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">Discussion</h1>
+        
+        <user-comment 
+            username="Alice Johnson" 
+            avatar="https://api.dicebear.com/7.x/avataaars/svg?seed=Alice"
+            text="This is a fantastic article! Really helped me understand Vue components."
+            timestamp="2 hours ago">
+        </user-comment>
+
+        <user-comment 
+            username="Bob Smith" 
+            avatar="https://api.dicebear.com/7.x/avataaars/svg?seed=Bob"
+            text="I agree with Alice. The examples are very clear."
+            timestamp="1 hour ago">
+        </user-comment>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        const app = createApp({});
+
+        app.component('user-comment', {
+            props: ['username', 'avatar', 'text', 'timestamp'],
+            data() {
+                return {
+                    likes: 0,
+                    isLiked: false
+                }
+            },
+            methods: {
+                toggleLike() {
+                    this.isLiked = !this.isLiked;
+                    this.likes += this.isLiked ? 1 : -1;
+                }
+            },
+            template: `
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex gap-4">
+                    <img :src="avatar" :alt="username" class="w-12 h-12 rounded-full bg-gray-100">
+                    
+                    <div class="flex-grow">
+                        <div class="flex justify-between items-start mb-1">
+                            <h4 class="font-bold text-gray-900">{{ username }}</h4>
+                            <span class="text-xs text-gray-400">{{ timestamp }}</span>
+                        </div>
+                        <p class="text-gray-700 mb-3">{{ text }}</p>
+                        
+                        <button 
+                            @click="toggleLike"
+                            class="flex items-center gap-2 text-sm font-medium transition"
+                            :class="isLiked ? 'text-red-500' : 'text-gray-500 hover:text-red-500'"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" :fill="isLiked ? 'currentColor' : 'none'" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            </svg>
+                            {{ likes }} {{ likes === 1 ? 'Like' : 'Likes' }}
+                        </button>
+                    </div>
+                </div>
+            `
+        });
+
+        app.mount('#app');
+    </script>
+</body>
+</html>

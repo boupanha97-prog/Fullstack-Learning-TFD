@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 4: Restaurant Menu</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>[v-cloak] { display: none; }</style>
+</head>
+<body class="bg-orange-50 min-h-screen">
+
+    <div id="app" v-cloak class="flex flex-col md:flex-row min-h-screen">
+        
+        <!-- Main Menu Area -->
+        <main class="flex-1 p-6 md:p-10">
+            <header class="mb-8">
+                <h1 class="text-4xl font-bold text-orange-800 mb-2">🍔 TastyBytes</h1>
+                <p class="text-orange-600">Delicious food delivered to your screen.</p>
+            </header>
+
+            <!-- Filters -->
+            <div class="mb-8 space-y-4">
+                <!-- Categories -->
+                <div class="flex flex-wrap gap-2">
+                    <button 
+                        v-for="cat in categories" 
+                        :key="cat"
+                        @click="selectedCategory = cat"
+                        class="px-4 py-2 rounded-full font-bold text-sm transition shadow-sm"
+                        :class="selectedCategory === cat ? 'bg-orange-500 text-white' : 'bg-white text-gray-600 hover:bg-orange-100'"
+                    >
+                        {{ cat }}
+                    </button>
+                </div>
+                
+                <!-- Search & Dietary -->
+                <div class="flex flex-col md:flex-row gap-4 justify-between">
+                    <input v-model="search" type="text" placeholder="Search menu..." class="px-4 py-2 rounded-lg border border-orange-200 focus:ring-2 focus:ring-orange-500 outline-none w-full md:w-64">
+                    <label class="flex items-center space-x-2 cursor-pointer bg-white px-4 py-2 rounded-lg shadow-sm">
+                        <input type="checkbox" v-model="vegOnly" class="text-green-500 focus:ring-green-500 rounded">
+                        <span class="text-sm font-medium text-gray-700">Vegetarian Only 🌿</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Menu Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                <div v-for="item in filteredMenu" :key="item.id" class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition group">
+                    <div class="h-48 overflow-hidden relative">
+                        <img :src="item.image" :alt="item.name" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        <div class="absolute bottom-2 left-2 flex gap-1">
+                            <span v-if="item.dietary.includes('Vegetarian')" class="bg-green-500 text-white text-xs px-2 py-1 rounded-full">Veg</span>
+                            <span v-if="item.dietary.includes('Spicy')" class="bg-red-500 text-white text-xs px-2 py-1 rounded-full">Spicy</span>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-lg text-gray-800">{{ item.name }}</h3>
+                            <span class="font-bold text-orange-600">${{ item.price }}</span>
+                        </div>
+                        <p class="text-sm text-gray-500 mb-4 h-10 line-clamp-2">{{ item.description }}</p>
+                        <button 
+                            @click="addToCart(item)"
+                            class="w-full bg-orange-100 text-orange-700 font-bold py-2 rounded-lg hover:bg-orange-500 hover:text-white transition"
+                        >
+                            Add to Order
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Cart Sidebar -->
+        <aside class="w-full md:w-96 bg-white border-l border-gray-200 shadow-2xl flex flex-col h-screen sticky top-0">
+            <div class="p-6 bg-orange-50 border-b border-orange-100">
+                <h2 class="text-xl font-bold text-gray-800">Your Order</h2>
+                <p class="text-sm text-gray-500">{{ cartCount }} items</p>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-4 space-y-4">
+                <div v-if="cart.length === 0" class="text-center py-10 text-gray-400">
+                    <p class="text-4xl mb-2">🍽️</p>
+                    <p>Your cart is empty.</p>
+                </div>
+
+                <div v-for="(item, index) in cart" :key="index" class="flex items-center gap-3 bg-white p-3 rounded-lg border border-gray-100 shadow-sm">
+                    <div class="w-12 h-12 bg-gray-100 rounded-md overflow-hidden flex-shrink-0">
+                        <img :src="item.image" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex-grow">
+                        <h4 class="font-bold text-sm text-gray-800">{{ item.name }}</h4>
+                        <p class="text-xs text-gray-500">${{ item.price }} x {{ item.qty }}</p>
+                    </div>
+                    <div class="flex flex-col items-end gap-1">
+                        <span class="font-bold text-sm">${{ (item.price * item.qty).toFixed(2) }}</span>
+                        <div class="flex items-center bg-gray-100 rounded">
+                            <button @click="updateQty(item, -1)" class="px-2 hover:bg-gray-200 text-gray-600">-</button>
+                            <button @click="updateQty(item, 1)" class="px-2 hover:bg-gray-200 text-gray-600">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 bg-gray-50 border-t border-gray-200">
+                <div class="space-y-2 mb-4 text-sm">
+                    <div class="flex justify-between text-gray-600">
+                        <span>Subtotal</span>
+                        <span>${{ subtotal }}</span>
+                    </div>
+                    <div class="flex justify-between text-gray-600">
+                        <span>Tax (10%)</span>
+                        <span>${{ tax }}</span>
+                    </div>
+                    <div class="flex justify-between font-bold text-lg text-gray-900 pt-2 border-t border-gray-200">
+                        <span>Total</span>
+                        <span>${{ total }}</span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <button @click="clearCart" class="px-4 py-3 border border-gray-300 rounded-lg text-gray-600 font-bold hover:bg-gray-100 transition">Clear</button>
+                    <button @click="checkout" class="px-4 py-3 bg-orange-600 text-white rounded-lg font-bold hover:bg-orange-700 transition shadow-lg">Checkout</button>
+                </div>
+            </div>
+        </aside>
+
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    selectedCategory: 'All',
+                    search: '',
+                    vegOnly: false,
+                    categories: ['All', 'Appetizers', 'Main Course', 'Desserts', 'Drinks'],
+                    cart: [],
+                    menu: [
+                        { id: 1, name: 'Classic Burger', description: 'Juicy beef patty with cheddar, lettuce, and tomato.', price: 12.99, category: 'Main Course', dietary: [], image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400' },
+                        { id: 2, name: 'Margherita Pizza', description: 'Fresh basil, mozzarella, and tomato sauce.', price: 14.50, category: 'Main Course', dietary: ['Vegetarian'], image: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400' },
+                        { id: 3, name: 'Caesar Salad', description: 'Crisp romaine, parmesan, croutons, and caesar dressing.', price: 9.99, category: 'Appetizers', dietary: ['Vegetarian'], image: 'https://images.unsplash.com/photo-1550304943-4f24f54ddde9?w=400' },
+                        { id: 4, name: 'Spicy Wings', description: 'Chicken wings tossed in our signature hot sauce.', price: 11.99, category: 'Appetizers', dietary: ['Spicy'], image: 'https://images.unsplash.com/photo-1608039829572-78524f79c4c7?w=400' },
+                        { id: 5, name: 'Chocolate Lava Cake', description: 'Warm chocolate cake with a molten center.', price: 8.50, category: 'Desserts', dietary: ['Vegetarian'], image: 'https://images.unsplash.com/photo-1624353365286-3f8d62daad51?w=400' },
+                        { id: 6, name: 'Iced Latte', description: 'Espresso with cold milk and ice.', price: 4.50, category: 'Drinks', dietary: ['Vegetarian', 'Gluten-free'], image: 'https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?w=400' },
+                    ]
+                }
+            },
+            computed: {
+                filteredMenu() {
+                    let result = this.menu;
+                    
+                    if (this.selectedCategory !== 'All') {
+                        result = result.filter(item => item.category === this.selectedCategory);
+                    }
+                    
+                    if (this.vegOnly) {
+                        result = result.filter(item => item.dietary.includes('Vegetarian'));
+                    }
+                    
+                    if (this.search) {
+                        const q = this.search.toLowerCase();
+                        result = result.filter(item => item.name.toLowerCase().includes(q));
+                    }
+                    
+                    return result;
+                },
+                cartCount() {
+                    return this.cart.reduce((sum, item) => sum + item.qty, 0);
+                },
+                subtotal() {
+                    return this.cart.reduce((sum, item) => sum + (item.price * item.qty), 0).toFixed(2);
+                },
+                tax() {
+                    return (this.subtotal * 0.10).toFixed(2);
+                },
+                total() {
+                    return (parseFloat(this.subtotal) + parseFloat(this.tax)).toFixed(2);
+                }
+            },
+            methods: {
+                addToCart(item) {
+                    const existing = this.cart.find(c => c.id === item.id);
+                    if (existing) {
+                        existing.qty++;
+                    } else {
+                        // Use spread to create a copy, add qty property
+                        this.cart.push({ ...item, qty: 1 });
+                    }
+                },
+                updateQty(item, change) {
+                    item.qty += change;
+                    if (item.qty <= 0) {
+                        this.cart = this.cart.filter(c => c.id !== item.id);
+                    }
+                },
+                clearCart() {
+                    if(confirm('Clear your cart?')) {
+                        this.cart = [];
+                    }
+                },
+                checkout() {
+                    if (this.cart.length === 0) return;
+                    alert(`Order placed!\nTotal: $${this.total}\nThank you for dining with us!`);
+                    this.cart = [];
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

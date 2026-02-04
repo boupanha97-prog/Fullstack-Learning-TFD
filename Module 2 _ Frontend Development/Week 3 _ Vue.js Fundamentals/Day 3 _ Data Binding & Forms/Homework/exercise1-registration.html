@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 1: Registration Form</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen py-10 px-4">
+    <div id="app" class="max-w-3xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+        
+        <!-- Header & Progress -->
+        <div class="bg-indigo-600 p-6 text-white">
+            <h1 class="text-2xl font-bold mb-2">Create Account</h1>
+            <div class="w-full bg-indigo-900 rounded-full h-2.5">
+                <div class="bg-green-400 h-2.5 rounded-full transition-all duration-500" :style="{ width: progress + '%' }"></div>
+            </div>
+            <p class="text-right text-xs mt-1">{{ Math.round(progress) }}% Completed</p>
+        </div>
+
+        <form @submit.prevent="submitForm" class="p-8 space-y-6">
+            
+            <!-- Username & Email -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                    <input v-model.trim="form.username" type="text" class="w-full border rounded-lg px-4 py-2 focus:ring-2 outline-none transition" :class="getFieldClass('username')">
+                    <p v-if="errors.username" class="text-red-500 text-xs mt-1">{{ errors.username }}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input v-model.trim="form.email" type="email" class="w-full border rounded-lg px-4 py-2 focus:ring-2 outline-none transition" :class="getFieldClass('email')">
+                    <p v-if="errors.email" class="text-red-500 text-xs mt-1">{{ errors.email }}</p>
+                </div>
+            </div>
+
+            <!-- Password Section -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <div class="relative">
+                        <input :type="showPassword ? 'text' : 'password'" v-model="form.password" class="w-full border rounded-lg px-4 py-2 focus:ring-2 outline-none transition" :class="getFieldClass('password')">
+                        <button type="button" @click="showPassword = !showPassword" class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 text-sm">
+                            {{ showPassword ? 'Hide' : 'Show' }}
+                        </button>
+                    </div>
+                    <div class="mt-1 h-1 w-full bg-gray-200 rounded overflow-hidden">
+                        <div class="h-full transition-all duration-300" :class="passwordStrengthColor" :style="{ width: passwordStrengthScore + '%' }"></div>
+                    </div>
+                    <p v-if="errors.password" class="text-red-500 text-xs mt-1">{{ errors.password }}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                    <input type="password" v-model="form.confirmPassword" class="w-full border rounded-lg px-4 py-2 focus:ring-2 outline-none transition" :class="getFieldClass('confirmPassword')">
+                    <p v-if="errors.confirmPassword" class="text-red-500 text-xs mt-1">{{ errors.confirmPassword }}</p>
+                </div>
+            </div>
+
+            <!-- Personal Details -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Age</label>
+                    <input v-model.number="form.age" type="number" class="w-full border rounded-lg px-4 py-2 focus:ring-2 outline-none transition" :class="getFieldClass('age')">
+                    <p v-if="errors.age" class="text-red-500 text-xs mt-1">{{ errors.age }}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                    <input v-model="form.phone" type="tel" placeholder="+1-234-567-8900" class="w-full border rounded-lg px-4 py-2 focus:ring-2 outline-none transition" :class="getFieldClass('phone')">
+                    <p v-if="errors.phone" class="text-red-500 text-xs mt-1">{{ errors.phone }}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                    <select v-model="form.country" class="w-full border rounded-lg px-4 py-2 focus:ring-2 outline-none transition bg-white" :class="getFieldClass('country')">
+                        <option value="" disabled>Select Country</option>
+                        <option v-for="c in countries" :key="c" :value="c">{{ c }}</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Gender -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Gender</label>
+                <div class="flex gap-4">
+                    <label v-for="g in ['Male', 'Female', 'Other', 'Prefer not to say']" :key="g" class="flex items-center cursor-pointer">
+                        <input type="radio" v-model="form.gender" :value="g" class="mr-2 text-indigo-600 focus:ring-indigo-500">
+                        <span class="text-sm text-gray-600">{{ g }}</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Interests -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Interests (Select at least 3)</label>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    <label v-for="interest in interestsList" :key="interest" class="flex items-center cursor-pointer p-2 border rounded hover:bg-gray-50" :class="{'bg-indigo-50 border-indigo-300': form.interests.includes(interest)}">
+                        <input type="checkbox" v-model="form.interests" :value="interest" class="mr-2 text-indigo-600 rounded focus:ring-indigo-500">
+                        <span class="text-sm text-gray-600">{{ interest }}</span>
+                    </label>
+                </div>
+                <p v-if="errors.interests" class="text-red-500 text-xs mt-1">{{ errors.interests }}</p>
+            </div>
+
+            <!-- Bio -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Bio</label>
+                <textarea v-model="form.bio" rows="3" maxlength="500" class="w-full border rounded-lg px-4 py-2 focus:ring-2 outline-none transition border-gray-300 focus:ring-indigo-200"></textarea>
+                <div class="text-right text-xs text-gray-500">{{ form.bio.length }}/500</div>
+            </div>
+
+            <!-- Toggles -->
+            <div class="space-y-3">
+                <label class="flex items-center cursor-pointer">
+                    <input type="checkbox" v-model="form.visibility" class="mr-2 text-indigo-600 rounded">
+                    <span class="text-sm text-gray-700">Make profile public</span>
+                </label>
+                <label class="flex items-center cursor-pointer">
+                    <input type="checkbox" v-model="form.newsletter" class="mr-2 text-indigo-600 rounded">
+                    <span class="text-sm text-gray-700">Subscribe to newsletter</span>
+                </label>
+                <label class="flex items-center cursor-pointer">
+                    <input type="checkbox" v-model="form.terms" class="mr-2 text-indigo-600 rounded">
+                    <span class="text-sm text-gray-700">I agree to Terms and Conditions <span class="text-red-500">*</span></span>
+                </label>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" :disabled="!isFormValid" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition shadow-md">
+                Create Account
+            </button>
+        </form>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        createApp({
+            data() {
+                return {
+                    form: {
+                        username: '', email: '', password: '', confirmPassword: '',
+                        age: null, phone: '', country: '', gender: 'Prefer not to say',
+                        interests: [], bio: '', visibility: false, newsletter: false, terms: false
+                    },
+                    showPassword: false,
+                    countries: ['USA', 'Canada', 'UK', 'Australia', 'Germany', 'France', 'Japan', 'China', 'India', 'Brazil'],
+                    interestsList: ['Coding', 'Design', 'Music', 'Sports', 'Travel', 'Reading', 'Gaming', 'Cooking']
+                }
+            },
+            computed: {
+                errors() {
+                    const e = {};
+                    if (this.form.username && !/^[a-zA-Z0-9]{3,20}$/.test(this.form.username)) e.username = "3-20 alphanumeric characters required.";
+                    if (this.form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.form.email)) e.email = "Invalid email format.";
+                    if (this.form.password && !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(this.form.password)) e.password = "Min 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special.";
+                    if (this.form.confirmPassword && this.form.confirmPassword !== this.form.password) e.confirmPassword = "Passwords do not match.";
+                    if (this.form.age && (this.form.age < 13 || this.form.age > 120)) e.age = "Age must be between 13 and 120.";
+                    if (this.form.phone && !/^\+?[\d\s-]{10,}$/.test(this.form.phone)) e.phone = "Invalid phone format.";
+                    if (this.form.interests.length > 0 && this.form.interests.length < 3) e.interests = "Select at least 3 interests.";
+                    return e;
+                },
+                passwordStrengthScore() {
+                    const p = this.form.password;
+                    if (!p) return 0;
+                    let score = 0;
+                    if (p.length >= 8) score += 25;
+                    if (/[A-Z]/.test(p)) score += 25;
+                    if (/[0-9]/.test(p)) score += 25;
+                    if (/[@$!%*?&]/.test(p)) score += 25;
+                    return score;
+                },
+                passwordStrengthColor() {
+                    const s = this.passwordStrengthScore;
+                    if (s <= 25) return 'bg-red-500';
+                    if (s <= 50) return 'bg-orange-500';
+                    if (s <= 75) return 'bg-yellow-500';
+                    return 'bg-green-500';
+                },
+                isFormValid() {
+                    // Check if required fields are filled and no errors exist
+                    const f = this.form;
+                    const filled = f.username && f.email && f.password && f.confirmPassword && f.age && f.phone && f.country && f.terms && f.interests.length >= 3;
+                    const noErrors = Object.keys(this.errors).length === 0;
+                    return filled && noErrors;
+                },
+                progress() {
+                    const fields = ['username', 'email', 'password', 'confirmPassword', 'age', 'phone', 'country', 'terms'];
+                    let completed = 0;
+                    fields.forEach(field => {
+                        if (this.form[field] && !this.errors[field]) completed++;
+                    });
+                    if (this.form.interests.length >= 3) completed++;
+                    return (completed / (fields.length + 1)) * 100;
+                }
+            },
+            methods: {
+                getFieldClass(field) {
+                    if (!this.form[field] && field !== 'interests') return 'border-gray-300 focus:ring-indigo-200'; // Not touched/empty
+                    if (this.errors[field]) return 'border-red-500 focus:ring-red-200 bg-red-50'; // Error
+                    return 'border-green-500 focus:ring-green-200 bg-green-50'; // Valid
+                },
+                submitForm() {
+                    if (this.isFormValid) {
+                        alert('Registration Successful!');
+                        console.log(this.form);
+                    }
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 5: Event Registration</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>[v-cloak] { display: none; }</style>
+</head>
+<body class="bg-indigo-900 min-h-screen p-8 text-gray-100">
+
+    <div id="app" v-cloak class="max-w-5xl mx-auto">
+        
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-white mb-2">🎟️ EventHorizon</h1>
+            <p class="text-indigo-300">Discover and book the best tech events.</p>
+        </header>
+
+        <!-- Stats Bar -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div class="bg-indigo-800 p-4 rounded-lg border border-indigo-700">
+                <p class="text-sm text-indigo-300">My Registrations</p>
+                <p class="text-2xl font-bold">{{ myRegistrations.length }} Events</p>
+            </div>
+            <div class="bg-indigo-800 p-4 rounded-lg border border-indigo-700">
+                <p class="text-sm text-indigo-300">Total Spent</p>
+                <p class="text-2xl font-bold">${{ totalSpent }}</p>
+            </div>
+            <div class="bg-indigo-800 p-4 rounded-lg border border-indigo-700">
+                <p class="text-sm text-indigo-300">Upcoming</p>
+                <p class="text-2xl font-bold">{{ upcomingCount }}</p>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="flex flex-wrap gap-4 mb-8 bg-indigo-800 p-4 rounded-lg">
+            <select v-model="filterCategory" class="bg-indigo-900 border border-indigo-600 rounded px-3 py-2 outline-none">
+                <option value="All">All Categories</option>
+                <option value="Conference">Conference</option>
+                <option value="Workshop">Workshop</option>
+                <option value="Social">Social</option>
+            </select>
+            <select v-model="filterPrice" class="bg-indigo-900 border border-indigo-600 rounded px-3 py-2 outline-none">
+                <option value="All">Any Price</option>
+                <option value="Free">Free</option>
+                <option value="Paid">Paid</option>
+            </select>
+            <button @click="sortBy = 'date'" class="text-sm font-bold hover:text-white" :class="sortBy === 'date' ? 'text-white underline' : 'text-indigo-400'">Sort by Date</button>
+            <button @click="sortBy = 'price'" class="text-sm font-bold hover:text-white" :class="sortBy === 'price' ? 'text-white underline' : 'text-indigo-400'">Sort by Price</button>
+        </div>
+
+        <!-- Event List -->
+        <div class="space-y-4">
+            <div v-for="event in filteredEvents" :key="event.id" class="bg-white text-gray-800 rounded-xl overflow-hidden flex flex-col md:flex-row shadow-lg">
+                
+                <!-- Date Badge -->
+                <div class="bg-indigo-600 text-white p-6 flex flex-col items-center justify-center min-w-[120px]">
+                    <span class="text-3xl font-bold">{{ new Date(event.date).getDate() }}</span>
+                    <span class="uppercase text-sm font-bold tracking-wider">{{ new Date(event.date).toLocaleString('default', { month: 'short' }) }}</span>
+                </div>
+
+                <!-- Content -->
+                <div class="p-6 flex-grow">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <span class="text-xs font-bold text-indigo-600 uppercase tracking-wide">{{ event.category }}</span>
+                            <h2 class="text-xl font-bold">{{ event.name }}</h2>
+                        </div>
+                        <span class="font-bold text-lg" :class="event.price === 0 ? 'text-green-600' : 'text-gray-800'">
+                            {{ event.price === 0 ? 'Free' : '$' + event.price }}
+                        </span>
+                    </div>
+                    
+                    <p class="text-gray-500 text-sm mb-4">📍 {{ event.location }} • 🕒 {{ event.time }}</p>
+                    
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm">
+                            <span class="font-bold" :class="event.seats < 10 ? 'text-red-500' : 'text-gray-600'">{{ event.seats }} seats left</span>
+                        </div>
+
+                        <button 
+                            v-if="!isRegistered(event.id)"
+                            @click="register(event)"
+                            :disabled="event.seats === 0"
+                            class="px-6 py-2 rounded-lg font-bold transition shadow-md"
+                            :class="event.seats === 0 ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-indigo-600 text-white hover:bg-indigo-700'"
+                        >
+                            {{ event.seats === 0 ? 'Sold Out' : 'Register' }}
+                        </button>
+                        <button 
+                            v-else
+                            @click="unregister(event)"
+                            class="px-6 py-2 rounded-lg font-bold border-2 border-red-500 text-red-500 hover:bg-red-50 transition"
+                        >
+                            Cancel Registration
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    filterCategory: 'All',
+                    filterPrice: 'All',
+                    sortBy: 'date',
+                    myRegistrations: [],
+                    events: [
+                        { id: 1, name: 'Vue.js Summit 2024', date: '2024-03-15', time: '09:00 AM', location: 'San Francisco, CA', category: 'Conference', seats: 120, price: 299 },
+                        { id: 2, name: 'Intro to Tailwind CSS', date: '2024-02-20', time: '02:00 PM', location: 'Online', category: 'Workshop', seats: 5, price: 0 },
+                        { id: 3, name: 'Tech Networking Night', date: '2024-02-25', time: '06:00 PM', location: 'New York, NY', category: 'Social', seats: 50, price: 25 },
+                        { id: 4, name: 'Advanced JavaScript Patterns', date: '2024-03-01', time: '10:00 AM', location: 'Online', category: 'Workshop', seats: 0, price: 49 },
+                        { id: 5, name: 'AI in 2024', date: '2024-04-10', time: '11:00 AM', location: 'Austin, TX', category: 'Conference', seats: 200, price: 150 },
+                    ]
+                }
+            },
+            computed: {
+                filteredEvents() {
+                    let result = this.events;
+
+                    if (this.filterCategory !== 'All') {
+                        result = result.filter(e => e.category === this.filterCategory);
+                    }
+
+                    if (this.filterPrice === 'Free') result = result.filter(e => e.price === 0);
+                    if (this.filterPrice === 'Paid') result = result.filter(e => e.price > 0);
+
+                    return result.sort((a, b) => {
+                        if (this.sortBy === 'date') return new Date(a.date) - new Date(b.date);
+                        if (this.sortBy === 'price') return a.price - b.price;
+                    });
+                },
+                totalSpent() {
+                    return this.myRegistrations.reduce((sum, id) => {
+                        const event = this.events.find(e => e.id === id);
+                        return sum + (event ? event.price : 0);
+                    }, 0);
+                },
+                upcomingCount() {
+                    const now = new Date();
+                    return this.events.filter(e => new Date(e.date) > now).length;
+                }
+            },
+            methods: {
+                isRegistered(id) {
+                    return this.myRegistrations.includes(id);
+                },
+                register(event) {
+                    if (event.seats > 0) {
+                        // Simulate form input
+                        const name = prompt("Enter your name to confirm:");
+                        if (name) {
+                            event.seats--;
+                            this.myRegistrations.push(event.id);
+                            alert(`Success! You are registered for ${event.name}.`);
+                        }
+                    }
+                },
+                unregister(event) {
+                    if (confirm("Are you sure you want to cancel?")) {
+                        event.seats++;
+                        this.myRegistrations = this.myRegistrations.filter(id => id !== event.id);
+                    }
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

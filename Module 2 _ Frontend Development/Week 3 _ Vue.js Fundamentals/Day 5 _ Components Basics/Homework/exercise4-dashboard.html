@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 4: Admin Dashboard</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 font-sans">
+    <div id="app" class="flex h-screen overflow-hidden">
+        
+        <!-- Sidebar -->
+        <sidebar-nav :menu-items="menuItems"></sidebar-nav>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <dash-header></dash-header>
+
+            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <stat-card title="Total Users" value="12,345" change="+12%" icon="fa-users" color="blue"></stat-card>
+                    <stat-card title="Revenue" value="$45,678" change="+5.4%" icon="fa-dollar-sign" color="green"></stat-card>
+                    <stat-card title="Bounce Rate" value="42.3%" change="-2.1%" icon="fa-chart-line" color="purple"></stat-card>
+                    <stat-card title="Issues" value="23" change="+4" icon="fa-bug" color="red"></stat-card>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+                    <div class="lg:col-span-2">
+                        <chart-card title="Monthly Sales"></chart-card>
+                    </div>
+                    <div>
+                        <activity-feed :activities="activities"></activity-feed>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <h3 class="font-bold text-gray-800 mb-4">Recent Orders</h3>
+                    <data-table :columns="columns" :rows="orders"></data-table>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        const app = createApp({
+            data() {
+                return {
+                    menuItems: [
+                        { name: 'Dashboard', icon: 'fa-home', active: true },
+                        { name: 'Analytics', icon: 'fa-chart-pie' },
+                        { name: 'Customers', icon: 'fa-users' },
+                        { name: 'Orders', icon: 'fa-shopping-cart' },
+                        { name: 'Settings', icon: 'fa-cog' }
+                    ],
+                    activities: [
+                        { id: 1, user: 'John Doe', action: 'placed a new order', time: '2 mins ago', icon: 'fa-shopping-bag', color: 'bg-blue-100 text-blue-600' },
+                        { id: 2, user: 'System', action: 'Server backup completed', time: '1 hour ago', icon: 'fa-server', color: 'bg-green-100 text-green-600' },
+                        { id: 3, user: 'Jane Smith', action: 'registered an account', time: '3 hours ago', icon: 'fa-user-plus', color: 'bg-purple-100 text-purple-600' }
+                    ],
+                    columns: ['ID', 'Customer', 'Date', 'Amount', 'Status'],
+                    orders: [
+                        { ID: '#1001', Customer: 'Alice Johnson', Date: 'Oct 24, 2023', Amount: '$120.00', Status: 'Completed' },
+                        { ID: '#1002', Customer: 'Bob Brown', Date: 'Oct 24, 2023', Amount: '$85.50', Status: 'Processing' },
+                        { ID: '#1003', Customer: 'Charlie Davis', Date: 'Oct 23, 2023', Amount: '$210.00', Status: 'Pending' },
+                        { ID: '#1004', Customer: 'Diana Evans', Date: 'Oct 23, 2023', Amount: '$45.00', Status: 'Completed' }
+                    ]
+                }
+            }
+        });
+
+        // 1. Sidebar Nav
+        app.component('sidebar-nav', {
+            props: ['menuItems'],
+            template: `
+                <aside class="w-64 bg-gray-900 text-white flex flex-col">
+                    <div class="h-16 flex items-center justify-center border-b border-gray-800">
+                        <span class="text-xl font-bold tracking-wider">ADMIN<span class="text-blue-500">PANEL</span></span>
+                    </div>
+                    <nav class="flex-1 py-6">
+                        <a v-for="item in menuItems" :key="item.name" href="#" 
+                           class="flex items-center px-6 py-3 text-gray-400 hover:bg-gray-800 hover:text-white transition border-l-4 border-transparent"
+                           :class="{'border-blue-500 bg-gray-800 text-white': item.active}">
+                            <i class="fas w-6" :class="item.icon"></i>
+                            <span class="font-medium">{{ item.name }}</span>
+                        </a>
+                    </nav>
+                </aside>
+            `
+        });
+
+        // 2. Header
+        app.component('dash-header', {
+            template: `
+                <header class="h-16 bg-white shadow-sm flex justify-between items-center px-6 z-10">
+                    <div class="flex items-center bg-gray-100 rounded-lg px-3 py-2 w-64">
+                        <i class="fas fa-search text-gray-400 mr-2"></i>
+                        <input type="text" placeholder="Search..." class="bg-transparent border-none focus:outline-none text-sm w-full">
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button class="relative text-gray-500 hover:text-blue-600">
+                            <i class="fas fa-bell"></i>
+                            <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                        </button>
+                        <div class="flex items-center gap-2 cursor-pointer">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Admin" class="w-8 h-8 rounded-full bg-gray-200">
+                            <span class="text-sm font-bold text-gray-700">Admin User</span>
+                        </div>
+                    </div>
+                </header>
+            `
+        });
+
+        // 3. Stat Card
+        app.component('stat-card', {
+            props: ['title', 'value', 'change', 'icon', 'color'],
+            computed: {
+                iconBg() {
+                    const map = { blue: 'bg-blue-100 text-blue-600', green: 'bg-green-100 text-green-600', purple: 'bg-purple-100 text-purple-600', red: 'bg-red-100 text-red-600' };
+                    return map[this.color];
+                },
+                isPositive() { return this.change.includes('+'); }
+            },
+            template: `
+                <div class="bg-white p-6 rounded-xl shadow-sm flex items-start justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium mb-1">{{ title }}</p>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-2">{{ value }}</h3>
+                        <span class="text-xs font-bold" :class="isPositive ? 'text-green-500' : 'text-red-500'">
+                            <i class="fas" :class="isPositive ? 'fa-arrow-up' : 'fa-arrow-down'"></i> {{ change }}
+                        </span>
+                        <span class="text-xs text-gray-400 ml-1">vs last month</span>
+                    </div>
+                    <div class="p-3 rounded-lg" :class="iconBg">
+                        <i class="fas text-xl" :class="icon"></i>
+                    </div>
+                </div>
+            `
+        });
+
+        // 4. Chart Card (Mock)
+        app.component('chart-card', {
+            props: ['title'],
+            template: `
+                <div class="bg-white p-6 rounded-xl shadow-sm h-full">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="font-bold text-gray-800">{{ title }}</h3>
+                        <button class="text-gray-400 hover:text-gray-600"><i class="fas fa-ellipsis-h"></i></button>
+                    </div>
+                    <div class="h-64 flex items-end justify-between gap-2 px-4">
+                        <!-- Mock Bars -->
+                        <div class="w-full bg-blue-100 rounded-t hover:bg-blue-200 transition relative group" style="height: 40%">
+                            <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition">40%</div>
+                        </div>
+                        <div class="w-full bg-blue-500 rounded-t hover:bg-blue-600 transition relative group" style="height: 70%">
+                             <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition">70%</div>
+                        </div>
+                        <div class="w-full bg-blue-100 rounded-t hover:bg-blue-200 transition relative group" style="height: 50%"></div>
+                        <div class="w-full bg-blue-100 rounded-t hover:bg-blue-200 transition relative group" style="height: 85%"></div>
+                        <div class="w-full bg-blue-100 rounded-t hover:bg-blue-200 transition relative group" style="height: 60%"></div>
+                        <div class="w-full bg-blue-100 rounded-t hover:bg-blue-200 transition relative group" style="height: 45%"></div>
+                        <div class="w-full bg-blue-100 rounded-t hover:bg-blue-200 transition relative group" style="height: 90%"></div>
+                    </div>
+                    <div class="flex justify-between mt-4 text-xs text-gray-400 px-2">
+                        <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                    </div>
+                </div>
+            `
+        });
+
+        // 5. Activity Feed
+        app.component('activity-feed', {
+            props: ['activities'],
+            template: `
+                <div class="bg-white p-6 rounded-xl shadow-sm h-full">
+                    <h3 class="font-bold text-gray-800 mb-6">Recent Activity</h3>
+                    <div class="space-y-6">
+                        <div v-for="act in activities" :key="act.id" class="flex gap-4">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" :class="act.color">
+                                <i class="fas" :class="act.icon"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-800"><span class="font-bold">{{ act.user }}</span> {{ act.action }}</p>
+                                <p class="text-xs text-gray-400 mt-1">{{ act.time }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="w-full mt-6 text-center text-blue-600 text-sm font-bold hover:underline">View All</button>
+                </div>
+            `
+        });
+
+        // 6. Data Table
+        app.component('data-table', {
+            props: ['columns', 'rows'],
+            template: `
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-gray-200">
+                                <th v-for="col in columns" :key="col" class="py-3 px-4 text-xs font-bold text-gray-500 uppercase tracking-wider">{{ col }}</th>
+                                <th class="py-3 px-4"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(row, i) in rows" :key="i" class="border-b border-gray-100 hover:bg-gray-50 transition">
+                                <td v-for="col in columns" :key="col" class="py-3 px-4 text-sm text-gray-700">
+                                    <span v-if="col === 'Status'" class="px-2 py-1 rounded-full text-xs font-bold" 
+                                        :class="{
+                                            'bg-green-100 text-green-700': row[col] === 'Completed',
+                                            'bg-yellow-100 text-yellow-700': row[col] === 'Processing',
+                                            'bg-gray-100 text-gray-700': row[col] === 'Pending'
+                                        }">
+                                        {{ row[col] }}
+                                    </span>
+                                    <span v-else>{{ row[col] }}</span>
+                                </td>
+                                <td class="py-3 px-4 text-right">
+                                    <button class="text-gray-400 hover:text-blue-600"><i class="fas fa-edit"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            `
+        });
+
+        app.mount('#app');
+    </script>
+</body>
+</html>

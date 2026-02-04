@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 4: Recipe Calculator</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-orange-50 min-h-screen p-8 flex justify-center">
+    <div id="app" class="w-full max-w-3xl bg-white rounded-2xl shadow-xl overflow-hidden">
+        
+        <!-- Header -->
+        <div class="bg-orange-600 p-8 text-white">
+            <h1 class="text-4xl font-bold mb-2">{{ recipe.name }}</h1>
+            <div class="flex gap-6 text-sm font-medium opacity-90">
+                <span>⏱ Prep: {{ recipe.prepTime }}m</span>
+                <span>🔥 Cook: {{ recipe.cookTime }}m</span>
+                <span>📊 Total: {{ totalTime }}m</span>
+            </div>
+        </div>
+
+        <div class="p-8">
+            <!-- Controls -->
+            <div class="flex items-center justify-between bg-orange-50 p-4 rounded-xl mb-8 border border-orange-100">
+                <div>
+                    <label class="block text-xs font-bold text-orange-800 uppercase tracking-wide mb-1">Servings</label>
+                    <div class="flex items-center gap-3">
+                        <button @click="desiredServings--" class="w-8 h-8 bg-white rounded-full shadow text-orange-600 font-bold hover:bg-orange-100" :disabled="desiredServings <= 1">-</button>
+                        <span class="text-2xl font-bold text-gray-800 w-8 text-center">{{ desiredServings }}</span>
+                        <button @click="desiredServings++" class="w-8 h-8 bg-white rounded-full shadow text-orange-600 font-bold hover:bg-orange-100">+</button>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-gray-500">Original Recipe: {{ recipe.servings }} servings</p>
+                    <p class="text-sm font-bold text-orange-600">Scaling Factor: {{ servingsMultiplier }}x</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Ingredients -->
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Ingredients</h2>
+                    <ul class="space-y-3">
+                        <li v-for="(ing, index) in scaledIngredients" :key="index" class="flex justify-between items-center p-2 hover:bg-gray-50 rounded">
+                            <span class="text-gray-700">{{ ing.name }}</span>
+                            <span class="font-bold text-orange-700">{{ formatAmount(ing.amount) }} {{ ing.unit }}</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Instructions -->
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Instructions</h2>
+                    <ol class="space-y-4 list-decimal list-inside text-gray-600">
+                        <li v-for="(step, i) in recipe.instructions" :key="i" class="pl-2">{{ step }}</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Stats Footer -->
+            <div class="mt-8 pt-6 border-t grid grid-cols-3 gap-4 text-center">
+                <div class="bg-gray-50 p-3 rounded-lg">
+                    <p class="text-xs text-gray-500 uppercase">Difficulty</p>
+                    <p class="font-bold text-gray-800">{{ difficulty }}</p>
+                </div>
+                <div class="bg-gray-50 p-3 rounded-lg">
+                    <p class="text-xs text-gray-500 uppercase">Est. Cost</p>
+                    <p class="font-bold text-gray-800">${{ costEstimate }}</p>
+                </div>
+                <div class="bg-gray-50 p-3 rounded-lg">
+                    <p class="text-xs text-gray-500 uppercase">Calories</p>
+                    <p class="font-bold text-gray-800">{{ nutritionEstimate }} kcal</p>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-center">
+                <button @click="resetServings" class="text-sm text-gray-500 hover:text-orange-600 underline">Reset to Original Servings</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        createApp({
+            data() {
+                return {
+                    desiredServings: 8,
+                    recipe: {
+                        name: 'Chocolate Lava Cake',
+                        servings: 8,
+                        prepTime: 20,
+                        cookTime: 15,
+                        ingredients: [
+                            { name: 'Dark Chocolate', amount: 200, unit: 'g' },
+                            { name: 'Butter', amount: 100, unit: 'g' },
+                            { name: 'Sugar', amount: 150, unit: 'g' },
+                            { name: 'Eggs', amount: 3, unit: 'pcs' },
+                            { name: 'Flour', amount: 50, unit: 'g' }
+                        ],
+                        instructions: ['Melt chocolate and butter.', 'Whisk eggs and sugar.', 'Combine mixtures.', 'Fold in flour.', 'Bake at 200°C for 15 mins.']
+                    }
+                }
+            },
+            computed: {
+                totalTime() { return this.recipe.prepTime + this.recipe.cookTime; },
+                servingsMultiplier() { return (this.desiredServings / this.recipe.servings).toFixed(2); },
+                scaledIngredients() {
+                    return this.recipe.ingredients.map(ing => ({
+                        ...ing,
+                        amount: ing.amount * (this.desiredServings / this.recipe.servings)
+                    }));
+                },
+                difficulty() { return this.recipe.ingredients.length > 8 || this.totalTime > 60 ? 'Hard' : (this.totalTime > 30 ? 'Medium' : 'Easy'); },
+                costEstimate() { return (this.desiredServings * 2.5).toFixed(2); }, // Dummy calculation
+                nutritionEstimate() { return 350; } // Per serving constant
+            },
+            methods: {
+                resetServings() { this.desiredServings = this.recipe.servings; },
+                formatAmount(val) { return Number.isInteger(val) ? val : val.toFixed(1); }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

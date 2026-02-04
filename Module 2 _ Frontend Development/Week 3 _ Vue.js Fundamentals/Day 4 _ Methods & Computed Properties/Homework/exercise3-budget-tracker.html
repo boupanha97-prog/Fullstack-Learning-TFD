@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 3: Budget Tracker</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-emerald-50 min-h-screen p-8">
+    <div id="app" class="max-w-6xl mx-auto">
+        
+        <!-- Dashboard Header -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500">
+                <p class="text-gray-500 text-sm">Total Income</p>
+                <p class="text-2xl font-bold text-green-600">+${{ totalIncome }}</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-red-500">
+                <p class="text-gray-500 text-sm">Total Expenses</p>
+                <p class="text-2xl font-bold text-red-600">-${{ totalExpenses }}</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border-l-4" :class="balance >= 0 ? 'border-blue-500' : 'border-orange-500'">
+                <p class="text-gray-500 text-sm">Balance</p>
+                <p class="text-2xl font-bold" :class="balance >= 0 ? 'text-blue-600' : 'text-orange-600'">${{ balance }}</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Transaction Form & List -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Add Form -->
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                    <h2 class="text-xl font-bold mb-4 text-gray-800">Add Transaction</h2>
+                    <form @submit.prevent="addTransaction" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <select v-model="newTx.type" class="p-2 border rounded">
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
+                        </select>
+                        <input v-model="newTx.description" placeholder="Description" class="p-2 border rounded" required>
+                        <input v-model.number="newTx.amount" type="number" placeholder="Amount" class="p-2 border rounded" required>
+                        <select v-model="newTx.category" class="p-2 border rounded">
+                            <option v-for="cat in availableCategories" :value="cat">{{ cat }}</option>
+                        </select>
+                        <input v-model="newTx.date" type="date" class="p-2 border rounded" required>
+                        <button type="submit" class="bg-emerald-600 text-white font-bold py-2 rounded hover:bg-emerald-700 md:col-span-2">Add Transaction</button>
+                    </form>
+                </div>
+
+                <!-- List -->
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold text-gray-800">Recent Transactions</h2>
+                        <div class="flex gap-2">
+                            <button @click="filter = 'all'" class="text-xs px-2 py-1 rounded bg-gray-100 hover:bg-gray-200">All</button>
+                            <button @click="filter = 'income'" class="text-xs px-2 py-1 rounded bg-green-100 text-green-700 hover:bg-green-200">Income</button>
+                            <button @click="filter = 'expense'" class="text-xs px-2 py-1 rounded bg-red-100 text-red-700 hover:bg-red-200">Expense</button>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div v-for="tx in filteredTransactions" :key="tx.id" class="flex justify-between items-center p-3 border rounded hover:bg-gray-50">
+                            <div>
+                                <p class="font-bold text-gray-800">{{ tx.description }}</p>
+                                <p class="text-xs text-gray-500">{{ tx.date }} • {{ tx.category }}</p>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <span class="font-bold" :class="tx.type === 'income' ? 'text-green-600' : 'text-red-600'">
+                                    {{ tx.type === 'income' ? '+' : '-' }}${{ tx.amount }}
+                                </span>
+                                <button @click="deleteTransaction(tx.id)" class="text-gray-400 hover:text-red-500">&times;</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Sidebar -->
+            <div class="lg:col-span-1 space-y-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                    <h2 class="text-xl font-bold mb-4 text-gray-800">Financial Health</h2>
+                    <div class="text-center py-4">
+                        <span class="text-4xl font-bold" :class="healthColor">{{ financialHealth }}</span>
+                        <p class="text-gray-500 mt-2">Savings Rate: {{ savingsRate }}%</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                    <h2 class="text-xl font-bold mb-4 text-gray-800">Expense Breakdown</h2>
+                    <div class="space-y-3">
+                        <div v-for="(amount, cat) in expensesByCategory" :key="cat">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>{{ cat }}</span>
+                                <span>${{ amount }} ({{ ((amount / totalExpenses) * 100).toFixed(1) }}%)</span>
+                            </div>
+                            <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                                <div class="h-full bg-red-400" :style="{ width: (amount / totalExpenses) * 100 + '%' }"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                    <h2 class="text-xl font-bold mb-4 text-gray-800">Insights</h2>
+                    <ul class="text-sm space-y-2 text-gray-600">
+                        <li>Largest Expense: <span class="font-bold text-red-500">${{ largestExpense }}</span></li>
+                        <li>Avg Expense: <span class="font-bold">${{ averageExpense }}</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        createApp({
+            data() {
+                return {
+                    transactions: [
+                        { id: 1, type: 'income', category: 'Salary', amount: 5000, description: 'Monthly Salary', date: '2024-01-01' },
+                        { id: 2, type: 'expense', category: 'Rent', amount: 1200, description: 'Apartment Rent', date: '2024-01-02' },
+                        { id: 3, type: 'expense', category: 'Food', amount: 300, description: 'Groceries', date: '2024-01-05' },
+                        { id: 4, type: 'expense', category: 'Transport', amount: 150, description: 'Gas', date: '2024-01-10' }
+                    ],
+                    newTx: { type: 'expense', description: '', amount: null, category: 'Other', date: new Date().toISOString().split('T')[0] },
+                    filter: 'all',
+                    categories: {
+                        income: ['Salary', 'Freelance', 'Investment', 'Other'],
+                        expense: ['Food', 'Transport', 'Rent', 'Utilities', 'Entertainment', 'Other']
+                    }
+                }
+            },
+            computed: {
+                availableCategories() { return this.categories[this.newTx.type]; },
+                filteredTransactions() {
+                    if (this.filter === 'all') return this.transactions;
+                    return this.transactions.filter(t => t.type === this.filter);
+                },
+                totalIncome() { return this.transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0); },
+                totalExpenses() { return this.transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0); },
+                balance() { return this.totalIncome - this.totalExpenses; },
+                
+                expensesByCategory() {
+                    return this.transactions
+                        .filter(t => t.type === 'expense')
+                        .reduce((acc, t) => {
+                            acc[t.category] = (acc[t.category] || 0) + t.amount;
+                            return acc;
+                        }, {});
+                },
+                largestExpense() {
+                    const expenses = this.transactions.filter(t => t.type === 'expense');
+                    return expenses.length ? Math.max(...expenses.map(t => t.amount)) : 0;
+                },
+                averageExpense() {
+                    const expenses = this.transactions.filter(t => t.type === 'expense');
+                    return expenses.length ? (this.totalExpenses / expenses.length).toFixed(2) : 0;
+                },
+                savingsRate() {
+                    if (this.totalIncome === 0) return 0;
+                    return (((this.totalIncome - this.totalExpenses) / this.totalIncome) * 100).toFixed(1);
+                },
+                financialHealth() {
+                    const rate = parseFloat(this.savingsRate);
+                    if (rate > 20) return 'Excellent';
+                    if (rate > 10) return 'Good';
+                    if (rate > 0) return 'Fair';
+                    return 'Poor';
+                },
+                healthColor() {
+                    const h = this.financialHealth;
+                    return h === 'Excellent' ? 'text-green-600' : (h === 'Good' ? 'text-blue-600' : (h === 'Fair' ? 'text-yellow-600' : 'text-red-600'));
+                }
+            },
+            watch: {
+                balance(newVal) {
+                    if (newVal < 0) alert('Warning: You have a negative balance!');
+                },
+                transactions: {
+                    handler(newVal) { localStorage.setItem('budget-tx', JSON.stringify(newVal)); },
+                    deep: true
+                }
+            },
+            methods: {
+                addTransaction() {
+                    this.transactions.unshift({ ...this.newTx, id: Date.now() });
+                    this.newTx = { type: 'expense', description: '', amount: null, category: 'Other', date: new Date().toISOString().split('T')[0] };
+                },
+                deleteTransaction(id) { this.transactions = this.transactions.filter(t => t.id !== id); }
+            },
+            mounted() { const saved = localStorage.getItem('budget-tx'); if (saved) this.transactions = JSON.parse(saved); }
+        }).mount('#app');
+    </script>
+</body>
+</html>

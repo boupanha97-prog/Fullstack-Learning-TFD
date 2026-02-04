@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 2: Survey Form</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-indigo-50 min-h-screen p-8 flex items-center justify-center">
+    <div id="app" class="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-8">
+        
+        <!-- Survey Input Form -->
+        <div class="bg-white p-8 rounded-2xl shadow-xl">
+            <h1 class="text-3xl font-bold mb-6 text-indigo-900">Product Feedback</h1>
+            
+            <div class="space-y-6">
+                <!-- Name -->
+                <div>
+                    <label class="block font-bold text-gray-700 mb-2">Full Name</label>
+                    <input v-model.trim.lazy="survey.name" type="text" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition" placeholder="John Doe">
+                </div>
+
+                <!-- Satisfaction (Radio) -->
+                <div>
+                    <label class="block font-bold text-gray-700 mb-2">Satisfaction Level</label>
+                    <div class="space-y-2">
+                        <label v-for="level in ['Very Satisfied', 'Satisfied', 'Neutral', 'Dissatisfied']" :key="level" class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <input type="radio" v-model="survey.satisfaction" :value="level" class="w-5 h-5 text-indigo-600 focus:ring-indigo-500">
+                            <span class="text-gray-700">{{ level }}</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Features (Checkbox Array) -->
+                <div>
+                    <label class="block font-bold text-gray-700 mb-2">Favorite Features</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label v-for="feat in ['Performance', 'UI Design', 'Ease of Use', 'Customer Support', 'Pricing', 'Reliability']" :key="feat" class="flex items-center space-x-2">
+                            <input type="checkbox" v-model="survey.features" :value="feat" class="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4">
+                            <span class="text-sm text-gray-600">{{ feat }}</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Comments -->
+                <div>
+                    <label class="block font-bold text-gray-700 mb-2">Additional Comments</label>
+                    <textarea v-model.trim="survey.comments" rows="4" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none resize-none" placeholder="Tell us more..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Summary -->
+        <div class="bg-indigo-900 text-white p-8 rounded-2xl shadow-xl h-fit sticky top-8">
+            <h2 class="text-2xl font-bold mb-6 border-b border-indigo-700 pb-4">Response Summary</h2>
+            
+            <div class="space-y-6">
+                <div>
+                    <p class="text-indigo-300 text-sm uppercase tracking-wider font-bold">Name</p>
+                    <p class="text-xl font-medium">{{ survey.name || '---' }}</p>
+                </div>
+                <div>
+                    <p class="text-indigo-300 text-sm uppercase tracking-wider font-bold">Satisfaction</p>
+                    <p class="text-lg">{{ survey.satisfaction || 'Not selected' }}</p>
+                </div>
+                <div>
+                    <p class="text-indigo-300 text-sm uppercase tracking-wider font-bold mb-2">Selected Features</p>
+                    <div v-if="survey.features.length" class="flex flex-wrap gap-2">
+                        <span v-for="f in survey.features" :key="f" class="bg-indigo-700 px-3 py-1 rounded-full text-sm">{{ f }}</span>
+                    </div>
+                    <p v-else class="text-gray-400 italic">None selected</p>
+                </div>
+                <div>
+                    <p class="text-indigo-300 text-sm uppercase tracking-wider font-bold">Comments</p>
+                    <p class="text-gray-300 whitespace-pre-wrap mt-1">{{ survey.comments || 'No comments provided.' }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        createApp({
+            data() {
+                return {
+                    survey: {
+                        name: '',
+                        satisfaction: '',
+                        features: [],
+                        comments: ''
+                    }
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

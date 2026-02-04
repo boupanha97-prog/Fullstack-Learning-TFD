@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 2: Advanced Todo List</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>[v-cloak] { display: none; }</style>
+</head>
+<body class="bg-slate-100 min-h-screen py-10 px-4">
+
+    <div id="app" v-cloak class="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+        
+        <!-- Header & Stats -->
+        <div class="bg-slate-800 p-8 text-white">
+            <h1 class="text-3xl font-bold mb-4">My Tasks</h1>
+            <div class="grid grid-cols-4 gap-4 text-center">
+                <div class="bg-slate-700 p-3 rounded-lg">
+                    <p class="text-2xl font-bold">{{ stats.total }}</p>
+                    <p class="text-xs text-slate-400 uppercase">Total</p>
+                </div>
+                <div class="bg-slate-700 p-3 rounded-lg">
+                    <p class="text-2xl font-bold text-green-400">{{ stats.completed }}</p>
+                    <p class="text-xs text-slate-400 uppercase">Done</p>
+                </div>
+                <div class="bg-slate-700 p-3 rounded-lg">
+                    <p class="text-2xl font-bold text-orange-400">{{ stats.pending }}</p>
+                    <p class="text-xs text-slate-400 uppercase">Pending</p>
+                </div>
+                <div class="bg-slate-700 p-3 rounded-lg">
+                    <p class="text-2xl font-bold text-blue-400">{{ stats.percent }}%</p>
+                    <p class="text-xs text-slate-400 uppercase">Progress</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="p-6 bg-gray-50 border-b border-gray-200">
+            <form @submit.prevent="addTodo" class="flex flex-col md:flex-row gap-3">
+                <input v-model="newTodo.text" type="text" placeholder="What needs to be done?" class="flex-grow px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none" required>
+                <select v-model="newTodo.priority" class="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+                    <option value="High">High Priority</option>
+                    <option value="Medium">Medium Priority</option>
+                    <option value="Low">Low Priority</option>
+                </select>
+                <input v-model="newTodo.dueDate" type="date" class="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none">
+                <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 transition">Add</button>
+            </form>
+        </div>
+
+        <!-- Filters -->
+        <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-white">
+            <div class="space-x-2">
+                <button 
+                    v-for="f in ['All', 'Active', 'Completed']" 
+                    :key="f"
+                    @click="filter = f"
+                    class="px-3 py-1 rounded-full text-sm font-medium transition"
+                    :class="filter === f ? 'bg-blue-100 text-blue-700' : 'text-gray-500 hover:bg-gray-100'"
+                >
+                    {{ f }}
+                </button>
+            </div>
+            <button @click="clearCompleted" v-if="stats.completed > 0" class="text-sm text-red-500 hover:text-red-700 hover:underline">
+                Clear Completed
+            </button>
+        </div>
+
+        <!-- Todo List -->
+        <ul class="divide-y divide-gray-100 max-h-[500px] overflow-y-auto">
+            <li v-for="todo in filteredTodos" :key="todo.id" class="p-4 hover:bg-gray-50 transition group flex items-center gap-4">
+                
+                <!-- Checkbox -->
+                <input type="checkbox" v-model="todo.completed" class="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 cursor-pointer">
+                
+                <!-- Content -->
+                <div class="flex-grow">
+                    <div v-if="!todo.isEditing" @dblclick="editTodo(todo)" class="cursor-pointer">
+                        <p 
+                            class="font-medium text-gray-800 transition-all"
+                            :class="{'line-through text-gray-400': todo.completed}"
+                        >
+                            {{ todo.text }}
+                        </p>
+                        <div class="flex gap-2 mt-1 text-xs">
+                            <span 
+                                class="px-2 py-0.5 rounded-full font-bold uppercase tracking-wider"
+                                :class="priorityColor(todo.priority)"
+                            >
+                                {{ todo.priority }}
+                            </span>
+                            <span v-if="todo.dueDate" class="text-gray-400 flex items-center">
+                                📅 {{ todo.dueDate }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Inline Edit Mode -->
+                    <input 
+                        v-else 
+                        v-model="todo.text" 
+                        @blur="finishEdit(todo)" 
+                        @keyup.enter="finishEdit(todo)"
+                        ref="editInput"
+                        type="text" 
+                        class="w-full px-2 py-1 border border-blue-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    >
+                </div>
+
+                <!-- Actions -->
+                <button @click="deleteTodo(todo.id)" class="text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition p-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </li>
+            
+            <li v-if="filteredTodos.length === 0" class="p-8 text-center text-gray-400 italic">
+                No tasks found.
+            </li>
+        </ul>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    filter: 'All',
+                    newTodo: {
+                        text: '',
+                        priority: 'Medium',
+                        dueDate: ''
+                    },
+                    todos: [
+                        { id: 1, text: 'Complete Vue.js Homework', priority: 'High', completed: false, dueDate: '2023-11-15', isEditing: false },
+                        { id: 2, text: 'Grocery Shopping', priority: 'Medium', completed: true, dueDate: '2023-11-10', isEditing: false },
+                        { id: 3, text: 'Walk the dog', priority: 'Low', completed: false, dueDate: '', isEditing: false }
+                    ]
+                }
+            },
+            computed: {
+                filteredTodos() {
+                    if (this.filter === 'Active') return this.todos.filter(t => !t.completed);
+                    if (this.filter === 'Completed') return this.todos.filter(t => t.completed);
+                    return this.todos;
+                },
+                stats() {
+                    const total = this.todos.length;
+                    const completed = this.todos.filter(t => t.completed).length;
+                    return {
+                        total,
+                        completed,
+                        pending: total - completed,
+                        percent: total === 0 ? 0 : Math.round((completed / total) * 100)
+                    };
+                }
+            },
+            methods: {
+                addTodo() {
+                    if (!this.newTodo.text.trim()) return;
+                    this.todos.unshift({
+                        id: Date.now(),
+                        text: this.newTodo.text,
+                        priority: this.newTodo.priority,
+                        dueDate: this.newTodo.dueDate,
+                        completed: false,
+                        isEditing: false
+                    });
+                    this.newTodo.text = ''; // Keep priority/date settings or reset? Resetting text only for better UX
+                },
+                deleteTodo(id) {
+                    this.todos = this.todos.filter(t => t.id !== id);
+                },
+                clearCompleted() {
+                    this.todos = this.todos.filter(t => !t.completed);
+                },
+                editTodo(todo) {
+                    todo.isEditing = true;
+                    // Focus logic would ideally go here with nextTick
+                },
+                finishEdit(todo) {
+                    if (!todo.text.trim()) this.deleteTodo(todo.id);
+                    todo.isEditing = false;
+                },
+                priorityColor(p) {
+                    if (p === 'High') return 'bg-red-100 text-red-700';
+                    if (p === 'Medium') return 'bg-yellow-100 text-yellow-700';
+                    return 'bg-green-100 text-green-700';
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

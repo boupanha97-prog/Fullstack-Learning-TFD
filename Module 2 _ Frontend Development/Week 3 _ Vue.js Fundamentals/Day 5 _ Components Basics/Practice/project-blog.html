@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integration Project: Personal Blog</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>[v-cloak] { display: none; }</style>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans">
+
+    <div id="app" v-cloak>
+        <!-- Header Component -->
+        <blog-header></blog-header>
+
+        <main class="max-w-5xl mx-auto p-6">
+            
+            <!-- Controls: Search & Add -->
+            <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+                <div class="relative w-full md:w-96">
+                    <input 
+                        v-model="searchQuery" 
+                        type="text" 
+                        placeholder="Search posts..." 
+                        class="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
+                    >
+                    <span class="absolute left-3 top-2.5 text-gray-400">🔍</span>
+                </div>
+                <button @click="showAddForm = !showAddForm" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 transition shadow-md">
+                    {{ showAddForm ? 'Cancel' : '+ New Post' }}
+                </button>
+            </div>
+
+            <!-- Add Post Form -->
+            <div v-if="showAddForm" class="bg-white p-6 rounded-xl shadow-md mb-8 border border-blue-100 animate-fade-in">
+                <h2 class="text-xl font-bold mb-4 text-gray-800">Create New Post</h2>
+                <form @submit.prevent="addNewPost" class="space-y-4">
+                    <input v-model="newPost.title" placeholder="Post Title" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                    <input v-model="newPost.image" placeholder="Image URL (optional)" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    <textarea v-model="newPost.content" placeholder="Write something..." rows="3" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required></textarea>
+                    <div class="flex justify-end">
+                        <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-green-700">Publish</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Blog Posts List -->
+            <div class="grid grid-cols-1 gap-8">
+                <blog-post 
+                    v-for="post in filteredPosts" 
+                    :key="post.id" 
+                    :post="post"
+                ></blog-post>
+                
+                <div v-if="filteredPosts.length === 0" class="text-center py-12 text-gray-500">
+                    No posts found matching "{{ searchQuery }}"
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        const app = createApp({
+            data() {
+                return {
+                    searchQuery: '',
+                    showAddForm: false,
+                    newPost: { title: '', content: '', image: '' },
+                    posts: [
+                        {
+                            id: 1,
+                            title: 'The Future of Vue.js',
+                            content: 'Vue 3 has introduced the Composition API, which changes how we structure our code for better reusability...',
+                            image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600',
+                            author: 'Sarah Dev',
+                            date: 'Oct 24, 2023',
+                            likes: 42,
+                            comments: [
+                                { id: 1, user: 'Mike', text: 'Great read!', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mike' }
+                            ]
+                        },
+                        {
+                            id: 2,
+                            title: 'Mastering Tailwind CSS',
+                            content: 'Utility-first CSS frameworks allow for rapid UI development without leaving your HTML...',
+                            image: 'https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=600',
+                            author: 'John Design',
+                            date: 'Oct 22, 2023',
+                            likes: 28,
+                            comments: []
+                        }
+                    ]
+                }
+            },
+            computed: {
+                filteredPosts() {
+                    return this.posts.filter(post => 
+                        post.title.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+                        post.content.toLowerCase().includes(this.searchQuery.toLowerCase())
+                    );
+                }
+            },
+            methods: {
+                addNewPost() {
+                    const post = {
+                        id: Date.now(),
+                        title: this.newPost.title,
+                        content: this.newPost.content,
+                        image: this.newPost.image || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600',
+                        author: 'You',
+                        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                        likes: 0,
+                        comments: []
+                    };
+                    this.posts.unshift(post);
+                    this.newPost = { title: '', content: '', image: '' };
+                    this.showAddForm = false;
+                }
+            }
+        });
+
+        // 1. Header Component
+        app.component('blog-header', {
+            template: `
+                <header class="bg-white shadow-sm sticky top-0 z-10">
+                    <div class="max-w-5xl mx-auto px-6 h-16 flex justify-between items-center">
+                        <div class="font-bold text-2xl text-gray-800 flex items-center gap-2">
+                            <span class="bg-blue-600 text-white p-1 rounded">VB</span> VueBlog
+                        </div>
+                        <nav class="hidden md:flex space-x-6 text-gray-600 font-medium">
+                            <a href="#" class="hover:text-blue-600">Home</a>
+                            <a href="#" class="hover:text-blue-600">Topics</a>
+                            <a href="#" class="hover:text-blue-600">About</a>
+                        </nav>
+                        <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
+                            U
+                        </div>
+                    </div>
+                </header>
+            `
+        });
+
+        // 2. Blog Post Component
+        app.component('blog-post', {
+            props: ['post'],
+            data() {
+                return {
+                    localLikes: this.post.likes,
+                    showComments: false,
+                    newCommentText: ''
+                }
+            },
+            methods: {
+                addComment() {
+                    if (!this.newCommentText.trim()) return;
+                    this.post.comments.push({
+                        id: Date.now(),
+                        user: 'You',
+                        text: this.newCommentText,
+                        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=You'
+                    });
+                    this.newCommentText = '';
+                }
+            },
+            template: `
+                <article class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100 hover:shadow-md transition">
+                    <div class="md:flex">
+                        <div class="md:w-1/3 h-48 md:h-auto relative">
+                            <img :src="post.image" :alt="post.title" class="w-full h-full object-cover absolute inset-0">
+                        </div>
+                        <div class="p-6 md:w-2/3 flex flex-col">
+                            <div class="flex items-center gap-2 text-sm text-gray-500 mb-2">
+                                <span class="font-bold text-gray-800">{{ post.author }}</span>
+                                <span>•</span>
+                                <span>{{ post.date }}</span>
+                            </div>
+                            
+                            <h2 class="text-2xl font-bold text-gray-800 mb-2">{{ post.title }}</h2>
+                            <p class="text-gray-600 mb-4 line-clamp-3">{{ post.content }}</p>
+                            
+                            <div class="mt-auto flex items-center gap-6 pt-4 border-t border-gray-50">
+                                <button @click="localLikes++" class="flex items-center gap-2 text-gray-500 hover:text-red-500 transition">
+                                    <span>❤️</span> {{ localLikes }}
+                                </button>
+                                <button @click="showComments = !showComments" class="flex items-center gap-2 text-gray-500 hover:text-blue-500 transition">
+                                    <span>💬</span> {{ post.comments.length }} Comments
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comments Section -->
+                    <div v-if="showComments" class="bg-gray-50 p-6 border-t border-gray-100">
+                        <h3 class="font-bold text-gray-700 mb-4">Discussion</h3>
+                        
+                        <div class="space-y-4 mb-6">
+                            <comment-item 
+                                v-for="comment in post.comments" 
+                                :key="comment.id" 
+                                :comment="comment"
+                            ></comment-item>
+                            <p v-if="post.comments.length === 0" class="text-sm text-gray-400 italic">No comments yet. Be the first!</p>
+                        </div>
+
+                        <div class="flex gap-3">
+                            <input 
+                                v-model="newCommentText" 
+                                @keyup.enter="addComment"
+                                placeholder="Add a comment..." 
+                                class="flex-grow p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                            >
+                            <button @click="addComment" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-700">Post</button>
+                        </div>
+                    </div>
+                </article>
+            `
+        });
+
+        // 3. Comment Item Component
+        app.component('comment-item', {
+            props: ['comment'],
+            template: `
+                <div class="flex gap-3">
+                    <img :src="comment.avatar" class="w-8 h-8 rounded-full bg-white border">
+                    <div class="bg-white p-3 rounded-lg rounded-tl-none shadow-sm border border-gray-100 text-sm">
+                        <span class="font-bold text-gray-900 block mb-1">{{ comment.user }}</span>
+                        <p class="text-gray-700">{{ comment.text }}</p>
+                    </div>
+                </div>
+            `
+        });
+
+        app.mount('#app');
+    </script>
+</body>
+</html>

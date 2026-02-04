@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 1: Grade Calculator</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-6">
+    <div id="app" class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">Grade Calculator</h1>
+
+        <!-- Input Section -->
+        <div class="flex gap-2 mb-6">
+            <input 
+                v-model.number="newScore" 
+                @keyup.enter="addScore"
+                type="number" 
+                placeholder="Enter score (0-100)" 
+                class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+            >
+            <button 
+                @click="addScore" 
+                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition font-bold"
+            >
+                Add
+            </button>
+        </div>
+
+        <!-- Scores List -->
+        <div class="mb-6 max-h-40 overflow-y-auto">
+            <div v-if="scores.length === 0" class="text-gray-400 text-center italic">No scores added yet.</div>
+            <div v-for="(score, index) in scores" :key="index" class="flex justify-between items-center bg-gray-50 p-2 rounded mb-2">
+                <span class="font-medium text-gray-700">Assignment {{ index + 1 }}</span>
+                <div class="flex items-center gap-3">
+                    <span class="font-bold">{{ score }}</span>
+                    <button @click="removeScore(index)" class="text-red-500 hover:text-red-700">&times;</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results (Computed) -->
+        <div class="border-t pt-4 space-y-2">
+            <div class="flex justify-between text-lg">
+                <span class="text-gray-600">Average Score:</span>
+                <span class="font-bold">{{ average }}</span>
+            </div>
+            <div class="flex justify-between text-xl">
+                <span class="text-gray-600">Letter Grade:</span>
+                <span class="font-bold" :class="gradeColor">{{ letterGrade }}</span>
+            </div>
+        </div>
+
+        <!-- Logs (Watcher) -->
+        <div class="mt-6 bg-gray-900 text-green-400 p-4 rounded-lg text-xs h-32 overflow-y-auto font-mono">
+            <div v-for="(log, i) in logs" :key="i">> {{ log }}</div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        createApp({
+            data() {
+                return {
+                    newScore: '',
+                    scores: [85, 92, 78],
+                    logs: []
+                }
+            },
+            computed: {
+                average() {
+                    if (this.scores.length === 0) return 0;
+                    const sum = this.scores.reduce((a, b) => a + b, 0);
+                    return (sum / this.scores.length).toFixed(1);
+                },
+                letterGrade() {
+                    const avg = this.average;
+                    if (avg >= 90) return 'A';
+                    if (avg >= 80) return 'B';
+                    if (avg >= 70) return 'C';
+                    if (avg >= 60) return 'D';
+                    return 'F';
+                },
+                gradeColor() {
+                    return this.letterGrade === 'A' || this.letterGrade === 'B' ? 'text-green-600' : (this.letterGrade === 'C' ? 'text-yellow-600' : 'text-red-600');
+                }
+            },
+            watch: {
+                scores: {
+                    handler(newVal) {
+                        this.logs.unshift(`Scores updated. New average: ${this.average}`);
+                    },
+                    deep: true
+                }
+            },
+            methods: {
+                addScore() {
+                    if (this.newScore !== '' && this.newScore >= 0 && this.newScore <= 100) {
+                        this.scores.push(this.newScore);
+                        this.newScore = '';
+                    }
+                },
+                removeScore(index) {
+                    this.scores.splice(index, 1);
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

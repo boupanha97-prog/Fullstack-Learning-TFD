@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 3: Navigation Component</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <div id="app">
+        <site-navigation></site-navigation>
+        
+        <main class="p-8 text-center text-gray-600 mt-10">
+            <h1 class="text-4xl font-bold mb-4">Welcome to My Site</h1>
+            <p>Resize the browser window to test the responsive menu.</p>
+        </main>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        const app = createApp({});
+
+        app.component('site-navigation', {
+            data() {
+                return {
+                    isOpen: false,
+                    activeLink: 'Home',
+                    menuItems: ['Home', 'About', 'Services', 'Portfolio', 'Contact']
+                }
+            },
+            template: `
+                <nav class="bg-indigo-600 text-white shadow-lg">
+                    <div class="max-w-6xl mx-auto px-4">
+                        <div class="flex justify-between items-center h-16">
+                            <!-- Logo -->
+                            <div class="font-bold text-xl tracking-wider flex items-center gap-2">
+                                <span class="text-2xl">🚀</span> BrandLogo
+                            </div>
+
+                            <!-- Desktop Menu -->
+                            <div class="hidden md:flex space-x-4">
+                                <a 
+                                    v-for="item in menuItems" 
+                                    :key="item"
+                                    href="#" 
+                                    @click.prevent="activeLink = item"
+                                    class="px-3 py-2 rounded-md text-sm font-medium transition"
+                                    :class="activeLink === item ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-500 hover:text-white'"
+                                >
+                                    {{ item }}
+                                </a>
+                            </div>
+
+                            <!-- Mobile Menu Button -->
+                            <div class="md:hidden flex items-center">
+                                <button @click="isOpen = !isOpen" class="text-indigo-200 hover:text-white focus:outline-none">
+                                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path v-if="!isOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                                        <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mobile Menu -->
+                    <div v-show="isOpen" class="md:hidden bg-indigo-700">
+                        <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                            <a 
+                                v-for="item in menuItems" 
+                                :key="item"
+                                href="#" 
+                                @click.prevent="activeLink = item; isOpen = false"
+                                class="block px-3 py-2 rounded-md text-base font-medium transition"
+                                :class="activeLink === item ? 'bg-indigo-800 text-white' : 'text-indigo-200 hover:bg-indigo-600 hover:text-white'"
+                            >
+                                {{ item }}
+                            </a>
+                        </div>
+                    </div>
+                </nav>
+            `
+        });
+
+        app.mount('#app');
+    </script>
+</body>
+</html>

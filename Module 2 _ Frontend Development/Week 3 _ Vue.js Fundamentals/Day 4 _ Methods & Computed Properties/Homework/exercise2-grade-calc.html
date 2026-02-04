@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 2: Grade Calculator</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen p-8">
+    <div id="app" class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+        
+        <div class="bg-slate-800 p-6 text-white flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Student Grade Analytics</h1>
+            <div class="text-right">
+                <div class="text-3xl font-bold" :class="isPassing ? 'text-green-400' : 'text-red-400'">{{ letterGrade }}</div>
+                <div class="text-sm opacity-75">{{ totalScore.toFixed(1) }}%</div>
+            </div>
+        </div>
+
+        <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+            
+            <!-- Inputs -->
+            <div class="space-y-6">
+                <h2 class="text-xl font-bold text-gray-700 border-b pb-2">Score Input</h2>
+                
+                <!-- Assignments -->
+                <div>
+                    <label class="block font-bold text-sm text-gray-600 mb-2">Assignments (40%)</label>
+                    <div class="flex flex-wrap gap-2 mb-2">
+                        <div v-for="(score, index) in student.assignments" :key="index" class="relative group">
+                            <input 
+                                type="number" 
+                                v-model.number="student.assignments[index]" 
+                                class="w-16 p-2 border rounded text-center focus:ring-2 focus:ring-blue-500 outline-none"
+                            >
+                            <button @click="removeAssignment(index)" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 text-xs hidden group-hover:block">&times;</button>
+                        </div>
+                        <button @click="addAssignment(100)" class="w-10 h-10 bg-blue-100 text-blue-600 rounded hover:bg-blue-200 font-bold">+</button>
+                    </div>
+                    <p class="text-xs text-gray-500">Avg: {{ averageAssignmentScore }}%</p>
+                </div>
+
+                <!-- Exams -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-bold text-sm text-gray-600 mb-1">Midterm (25%)</label>
+                        <input v-model.number="student.midterm" type="number" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-sm text-gray-600 mb-1">Final (25%)</label>
+                        <input v-model.number="student.final" type="number" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                </div>
+
+                <!-- Attendance -->
+                <div>
+                    <label class="block font-bold text-sm text-gray-600 mb-1">Attendance (10%)</label>
+                    <input v-model.number="student.attendance" type="range" min="0" max="100" class="w-full">
+                    <div class="text-right text-sm font-bold">{{ student.attendance }}%</div>
+                </div>
+
+                <div class="pt-4 flex gap-2">
+                    <button @click="resetAllScores" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Reset</button>
+                    <button @click="generateReport" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Generate Report</button>
+                </div>
+            </div>
+
+            <!-- Analytics -->
+            <div class="bg-gray-50 p-6 rounded-xl space-y-4">
+                <h2 class="text-xl font-bold text-gray-700 border-b pb-2">Performance Breakdown</h2>
+                
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span>Weighted Assignments</span>
+                        <span class="font-bold">{{ weightedAssignmentScore.toFixed(1) }} / 40</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Weighted Midterm</span>
+                        <span class="font-bold">{{ weightedMidtermScore.toFixed(1) }} / 25</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Weighted Final</span>
+                        <span class="font-bold">{{ weightedFinalScore.toFixed(1) }} / 25</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Weighted Attendance</span>
+                        <span class="font-bold">{{ weightedAttendanceScore.toFixed(1) }} / 10</span>
+                    </div>
+                </div>
+
+                <div class="border-t pt-4 space-y-2">
+                    <p class="text-sm"><span class="font-bold">Status:</span> {{ gradeStatus }}</p>
+                    <p class="text-sm"><span class="font-bold">Highest Assignment:</span> {{ highestAssignment }}</p>
+                    <p class="text-sm"><span class="font-bold">Lowest Assignment:</span> {{ lowestAssignment }}</p>
+                    <p class="text-sm"><span class="font-bold">Missed Assignments:</span> {{ missedAssignments }}</p>
+                </div>
+
+                <!-- What If Calculator -->
+                <div class="bg-blue-50 p-4 rounded-lg border border-blue-100 mt-4">
+                    <h3 class="font-bold text-blue-800 mb-2">What-If Calculator</h3>
+                    <p class="text-xs text-blue-600 mb-2">Predict total if Final Exam was:</p>
+                    <input type="number" v-model.number="whatIfFinal" placeholder="Enter score" class="w-full p-1 border rounded mb-1">
+                    <p class="font-bold text-blue-900">Predicted Grade: {{ calculateWhatIfScore(whatIfFinal) }}%</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        createApp({
+            data() {
+                return {
+                    student: {
+                        assignments: [85, 90, 75],
+                        midterm: 80,
+                        final: 0,
+                        attendance: 95
+                    },
+                    whatIfFinal: 100
+                }
+            },
+            computed: {
+                averageAssignmentScore() {
+                    if (this.student.assignments.length === 0) return 0;
+                    const sum = this.student.assignments.reduce((a, b) => a + b, 0);
+                    return (sum / this.student.assignments.length).toFixed(1);
+                },
+                weightedAssignmentScore() { return this.averageAssignmentScore * 0.4; },
+                weightedMidtermScore() { return this.student.midterm * 0.25; },
+                weightedFinalScore() { return this.student.final * 0.25; },
+                weightedAttendanceScore() { return this.student.attendance * 0.1; },
+                
+                totalScore() {
+                    return this.weightedAssignmentScore + this.weightedMidtermScore + this.weightedFinalScore + this.weightedAttendanceScore;
+                },
+                letterGrade() {
+                    const s = this.totalScore;
+                    if (s >= 90) return 'A';
+                    if (s >= 80) return 'B';
+                    if (s >= 70) return 'C';
+                    if (s >= 60) return 'D';
+                    return 'F';
+                },
+                isPassing() { return this.totalScore >= 60; },
+                gradeStatus() {
+                    if (this.totalScore >= 90) return "Excellent";
+                    if (this.totalScore >= 80) return "Good";
+                    if (this.totalScore >= 70) return "Average";
+                    if (this.totalScore >= 60) return "Poor";
+                    return "Failing";
+                },
+                lowestAssignment() { return Math.min(...this.student.assignments); },
+                highestAssignment() { return Math.max(...this.student.assignments); },
+                missedAssignments() { return this.student.assignments.filter(s => s === 0).length; },
+            },
+            watch: {
+                totalScore(newVal, oldVal) {
+                    if (Math.abs(newVal - oldVal) > 5) {
+                        console.log(`Significant grade change: ${oldVal.toFixed(1)} -> ${newVal.toFixed(1)}`);
+                    }
+                },
+                'student.assignments': {
+                    handler(newVal) {
+                        console.log('Assignments updated:', newVal);
+                    },
+                    deep: true
+                }
+            },
+            methods: {
+                addAssignment(score) { this.student.assignments.push(score); },
+                removeAssignment(index) { this.student.assignments.splice(index, 1); },
+                resetAllScores() {
+                    this.student.assignments = [];
+                    this.student.midterm = 0;
+                    this.student.final = 0;
+                    this.student.attendance = 0;
+                },
+                calculateWhatIfScore(newFinal) {
+                    const weightedFinal = newFinal * 0.25;
+                    const total = this.weightedAssignmentScore + this.weightedMidtermScore + weightedFinal + this.weightedAttendanceScore;
+                    return total.toFixed(1);
+                },
+                generateReport() { alert(`Report:\nGrade: ${this.letterGrade}\nScore: ${this.totalScore.toFixed(1)}%\nStatus: ${this.gradeStatus}`); }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

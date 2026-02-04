@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 3: E-Commerce Product Page</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-white min-h-screen">
+    <div id="app" class="max-w-7xl mx-auto p-6 lg:p-12">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+            <!-- Left: Gallery -->
+            <product-gallery :images="product.images"></product-gallery>
+
+            <!-- Right: Info & Actions -->
+            <div class="space-y-6">
+                <product-info :product="product"></product-info>
+                
+                <div class="border-t border-b py-6 space-y-6">
+                    <product-options 
+                        :options="product.options" 
+                        @update-option="updateOption"
+                    ></product-options>
+                    
+                    <div class="flex gap-4">
+                        <quantity-selector 
+                            v-model="quantity" 
+                            :max="product.stock"
+                        ></quantity-selector>
+                        <add-to-cart 
+                            :product="product" 
+                            :quantity="quantity"
+                            :disabled="!isSelectionComplete"
+                        ></add-to-cart>
+                    </div>
+                </div>
+
+                <div class="text-sm text-gray-500 flex gap-6">
+                    <span><i class="fas fa-truck"></i> Free Shipping</span>
+                    <span><i class="fas fa-undo"></i> 30-Day Returns</span>
+                    <span><i class="fas fa-shield-alt"></i> 2 Year Warranty</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom: Tabs -->
+        <product-tabs :description="product.description" :specs="product.specs" :reviews="product.reviews"></product-tabs>
+
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        const app = createApp({
+            data() {
+                return {
+                    quantity: 1,
+                    selectedOptions: {},
+                    product: {
+                        name: 'Premium Wireless Headphones',
+                        price: 299.99,
+                        salePrice: 249.99,
+                        rating: 4.8,
+                        reviewsCount: 124,
+                        stock: 15,
+                        sku: 'WH-1000XM5',
+                        category: 'Electronics',
+                        description: 'Experience industry-leading noise cancellation and superior sound quality. Designed for comfort and style, these headphones are perfect for travel, work, and play.',
+                        images: [
+                            'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600',
+                            'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=600',
+                            'https://images.unsplash.com/photo-1484704849700-f032a568e944?w=600'
+                        ],
+                        options: [
+                            { name: 'Color', values: ['Black', 'Silver', 'Blue'] },
+                            { name: 'Size', values: ['Standard'] }
+                        ],
+                        specs: [
+                            { label: 'Battery Life', value: '30 Hours' },
+                            { label: 'Weight', value: '250g' },
+                            { label: 'Connectivity', value: 'Bluetooth 5.2' }
+                        ],
+                        reviews: [
+                            { id: 1, user: 'John D.', rating: 5, date: 'Oct 10, 2023', text: 'Best headphones I have ever owned. The noise cancelling is magic.' },
+                            { id: 2, user: 'Sarah M.', rating: 4, date: 'Sep 28, 2023', text: 'Great sound, but a bit tight on the ears after long sessions.' }
+                        ]
+                    }
+                }
+            },
+            computed: {
+                isSelectionComplete() {
+                    return this.product.options.every(opt => this.selectedOptions[opt.name]);
+                }
+            },
+            methods: {
+                updateOption(name, value) {
+                    this.selectedOptions[name] = value;
+                }
+            }
+        });
+
+        // 1. Product Gallery
+        app.component('product-gallery', {
+            props: ['images'],
+            data() { return { currentImage: this.images[0] } },
+            template: `
+                <div>
+                    <div class="aspect-square bg-gray-100 rounded-2xl overflow-hidden mb-4 relative group">
+                        <img :src="currentImage" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                    </div>
+                    <div class="flex gap-4 overflow-x-auto pb-2">
+                        <button 
+                            v-for="img in images" 
+                            :key="img"
+                            @click="currentImage = img"
+                            class="w-20 h-20 rounded-lg overflow-hidden border-2 transition flex-shrink-0"
+                            :class="currentImage === img ? 'border-black' : 'border-transparent hover:border-gray-300'"
+                        >
+                            <img :src="img" class="w-full h-full object-cover">
+                        </button>
+                    </div>
+                </div>
+            `
+        });
+
+        // 2. Product Info
+        app.component('product-info', {
+            props: ['product'],
+            template: `
+                <div>
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-sm text-gray-500 uppercase tracking-wider">{{ product.category }}</span>
+                        <span class="text-xs text-gray-400">SKU: {{ product.sku }}</span>
+                    </div>
+                    <h1 class="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">{{ product.name }}</h1>
+                    
+                    <div class="flex items-center gap-4 mb-6">
+                        <price-display :original="product.price" :sale="product.salePrice"></price-display>
+                        <div class="h-6 w-px bg-gray-300"></div>
+                        <rating-stars :rating="product.rating" :count="product.reviewsCount"></rating-stars>
+                    </div>
+
+                    <p class="text-gray-600 leading-relaxed">{{ product.description }}</p>
+                </div>
+            `
+        });
+
+        // 3. Price Display
+        app.component('price-display', {
+            props: ['original', 'sale'],
+            computed: {
+                discount() { return Math.round(((this.original - this.sale) / this.original) * 100); }
+            },
+            template: `
+                <div class="flex items-baseline gap-2">
+                    <span class="text-2xl font-bold text-gray-900">$ {{ sale || original }}</span>
+                    <span v-if="sale" class="text-lg text-gray-400 line-through">$ {{ original }}</span>
+                    <span v-if="sale" class="bg-red-100 text-red-700 text-xs font-bold px-2 py-1 rounded">-{{ discount }}%</span>
+                </div>
+            `
+        });
+
+        // 4. Rating Stars
+        app.component('rating-stars', {
+            props: ['rating', 'count'],
+            template: `
+                <div class="flex items-center gap-2">
+                    <div class="flex text-yellow-400 text-sm">
+                        <i v-for="n in 5" :key="n" class="fas" :class="n <= Math.round(rating) ? 'fa-star' : 'fa-star text-gray-300'"></i>
+                    </div>
+                    <span class="text-sm text-blue-600 hover:underline cursor-pointer">{{ count }} Reviews</span>
+                </div>
+            `
+        });
+
+        // 5. Product Options
+        app.component('product-options', {
+            props: ['options'],
+            data() { return { selections: {} } },
+            methods: {
+                select(name, value) {
+                    this.selections[name] = value;
+                    this.$emit('update-option', name, value);
+                }
+            },
+            template: `
+                <div class="space-y-4">
+                    <div v-for="opt in options" :key="opt.name">
+                        <h3 class="font-bold text-sm text-gray-900 mb-2">{{ opt.name }}: <span class="font-normal text-gray-600">{{ selections[opt.name] }}</span></h3>
+                        <div class="flex flex-wrap gap-2">
+                            <button 
+                                v-for="val in opt.values" 
+                                :key="val"
+                                @click="select(opt.name, val)"
+                                class="px-4 py-2 rounded border text-sm font-medium transition"
+                                :class="selections[opt.name] === val ? 'border-black bg-black text-white' : 'border-gray-200 hover:border-gray-400'"
+                            >
+                                {{ val }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `
+        });
+
+        // 6. Quantity Selector
+        app.component('quantity-selector', {
+            props: ['modelValue', 'max'],
+            emits: ['update:modelValue'],
+            template: `
+                <div class="flex items-center border border-gray-300 rounded-lg w-32">
+                    <button @click="$emit('update:modelValue', Math.max(1, modelValue - 1))" class="w-10 h-10 flex items-center justify-center hover:bg-gray-50">-</button>
+                    <input :value="modelValue" readonly class="w-12 text-center border-none focus:ring-0 font-bold">
+                    <button @click="$emit('update:modelValue', Math.min(max, modelValue + 1))" class="w-10 h-10 flex items-center justify-center hover:bg-gray-50">+</button>
+                </div>
+            `
+        });
+
+        // 7. Add to Cart
+        app.component('add-to-cart', {
+            props: ['product', 'quantity', 'disabled'],
+            methods: {
+                addToCart() {
+                    if (this.disabled) return;
+                    alert(`Added ${this.quantity} x ${this.product.name} to cart!`);
+                }
+            },
+            template: `
+                <button 
+                    @click="addToCart"
+                    :disabled="disabled"
+                    class="flex-1 bg-black text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+                >
+                    <i class="fas fa-shopping-bag"></i>
+                    {{ disabled ? 'Select Options' : 'Add to Cart' }}
+                </button>
+            `
+        });
+
+        // 8. Product Tabs
+        app.component('product-tabs', {
+            props: ['description', 'specs', 'reviews'],
+            data() { return { activeTab: 'Description' } },
+            template: `
+                <div>
+                    <div class="flex border-b mb-6">
+                        <button 
+                            v-for="tab in ['Description', 'Specifications', 'Reviews']" 
+                            :key="tab"
+                            @click="activeTab = tab"
+                            class="px-6 py-3 font-medium text-sm transition border-b-2"
+                            :class="activeTab === tab ? 'border-black text-black' : 'border-transparent text-gray-500 hover:text-gray-800'"
+                        >
+                            {{ tab }}
+                        </button>
+                    </div>
+
+                    <div class="animate-fade-in">
+                        <div v-if="activeTab === 'Description'" class="prose max-w-none text-gray-600">
+                            <p>{{ description }}</p>
+                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                        </div>
+
+                        <div v-if="activeTab === 'Specifications'">
+                            <table class="w-full text-sm text-left">
+                                <tbody>
+                                    <tr v-for="(spec, i) in specs" :key="i" class="border-b">
+                                        <th class="py-3 font-medium text-gray-900 w-1/3">{{ spec.label }}</th>
+                                        <td class="py-3 text-gray-600">{{ spec.value }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div v-if="activeTab === 'Reviews'" class="space-y-6">
+                            <review-card v-for="review in reviews" :key="review.id" :review="review"></review-card>
+                        </div>
+                    </div>
+                </div>
+            `
+        });
+
+        // 9. Review Card
+        app.component('review-card', {
+            props: ['review'],
+            template: `
+                <div class="border-b pb-6 last:border-0">
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center font-bold text-xs">{{ review.user[0] }}</div>
+                            <span class="font-bold text-sm">{{ review.user }}</span>
+                        </div>
+                        <span class="text-xs text-gray-400">{{ review.date }}</span>
+                    </div>
+                    <div class="flex text-yellow-400 text-xs mb-2">
+                        <i v-for="n in 5" :key="n" class="fas" :class="n <= review.rating ? 'fa-star' : 'fa-star text-gray-200'"></i>
+                    </div>
+                    <p class="text-gray-600 text-sm">{{ review.text }}</p>
+                </div>
+            `
+        });
+
+        app.mount('#app');
+    </script>
+    <style>
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
+    </style>
+</body>
+</html>

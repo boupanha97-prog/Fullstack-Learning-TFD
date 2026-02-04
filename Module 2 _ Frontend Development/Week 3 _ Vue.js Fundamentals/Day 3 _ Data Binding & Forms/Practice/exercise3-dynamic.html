@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 3: Dynamic Form</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen p-10 flex justify-center">
+    <div id="app" class="w-full max-w-2xl bg-white p-8 rounded-xl shadow-lg h-fit">
+        
+        <div class="flex justify-between items-center mb-8 border-b pb-4">
+            <h1 class="text-2xl font-bold text-gray-800">Dynamic Inventory List</h1>
+            <span class="bg-green-100 text-green-800 px-4 py-1 rounded-full text-sm font-bold">
+                Total Items: {{ items.length }}
+            </span>
+        </div>
+
+        <form @submit.prevent="submitForm" class="space-y-4">
+            <!-- Dynamic List -->
+            <div v-for="(item, index) in items" :key="item.id" class="flex gap-3 items-start">
+                <div class="flex-grow">
+                    <input 
+                        v-model.trim="item.value" 
+                        type="text" 
+                        :placeholder="'Enter item ' + (index + 1) + ' name...'" 
+                        class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition"
+                        :class="{'border-red-500 bg-red-50': item.touched && !item.value}"
+                        @blur="item.touched = true"
+                    >
+                    <p v-if="item.touched && !item.value" class="text-red-500 text-xs mt-1 font-bold">⚠️ This field is required</p>
+                </div>
+                
+                <button 
+                    type="button" 
+                    @click="removeItem(index)"
+                    class="bg-red-50 text-red-500 p-3 rounded-lg hover:bg-red-100 transition border border-red-100"
+                    :disabled="items.length === 1"
+                    :class="{'opacity-50 cursor-not-allowed': items.length === 1}"
+                    title="Remove Item"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Controls -->
+            <div class="pt-6 flex gap-4">
+                <button 
+                    type="button" 
+                    @click="addItem" 
+                    class="flex-1 bg-gray-100 text-gray-700 font-bold py-3 rounded-lg hover:bg-gray-200 transition border-2 border-dashed border-gray-300 hover:border-gray-400"
+                >
+                    + Add New Item
+                </button>
+                <button 
+                    type="submit" 
+                    class="flex-1 bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700 transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                    :disabled="!isFormValid"
+                >
+                    Submit List
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        createApp({
+            data() {
+                return {
+                    // Initialize with one empty item
+                    items: [{ id: Date.now(), value: '', touched: false }]
+                }
+            },
+            computed: {
+                isFormValid() {
+                    // Check if list is not empty AND every item has a value
+                    return this.items.length > 0 && this.items.every(item => item.value.length > 0);
+                }
+            },
+            methods: {
+                addItem() {
+                    this.items.push({
+                        id: Date.now(), // Unique ID for :key
+                        value: '',
+                        touched: false
+                    });
+                },
+                removeItem(index) {
+                    if (this.items.length > 1) {
+                        this.items.splice(index, 1);
+                    }
+                },
+                submitForm() {
+                    if (this.isFormValid) {
+                        const data = this.items.map(i => i.value);
+                        console.log('Submitting:', data);
+                        alert('Form submitted! Check console for data.');
+                    }
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
