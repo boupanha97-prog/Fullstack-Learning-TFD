@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic Dashboard Cards</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+  <div id="app">
+    <div class="max-w-6xl mx-auto">
+      <h1 class="text-3xl font-bold mb-8 text-gray-800">Analytics Dashboard</h1>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <stat-card
+          label="Total Users"
+          :value="12458"
+          icon="👥"
+          color="blue"
+          trend="up">
+        </stat-card>
+        
+        <stat-card
+          label="Revenue"
+          value="$45,290"
+          icon="💰"
+          color="green"
+          trend="up">
+        </stat-card>
+        
+        <stat-card
+          label="Bounce Rate"
+          value="42.3%"
+          icon="📉"
+          color="orange"
+          trend="down">
+        </stat-card>
+
+        <stat-card
+          label="Active Sessions"
+          :value="843"
+          icon="⚡"
+          color="purple"
+          trend="neutral">
+        </stat-card>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const { createApp } = Vue;
+    const app = createApp({});
+
+    app.component('stat-card', {
+      props: {
+        label: String,
+        value: [String, Number],
+        icon: String,
+        color: { 
+            type: String, 
+            default: 'blue',
+            validator(value) { return ['blue', 'green', 'purple', 'orange', 'red'].includes(value); }
+        },
+        trend: { 
+            type: String, 
+            default: 'neutral',
+            validator(value) { return ['up', 'down', 'neutral'].includes(value); }
+        }
+      },
+      
+      computed: {
+        colorClasses() {
+            const map = { blue: 'bg-blue-100 text-blue-600', green: 'bg-green-100 text-green-600', purple: 'bg-purple-100 text-purple-600', orange: 'bg-orange-100 text-orange-600', red: 'bg-red-100 text-red-600' };
+            return map[this.color] || map.blue;
+        },
+        trendIcon() { return { up: '📈', down: '📉', neutral: '➡️' }[this.trend]; },
+        trendColor() { return { up: 'text-green-500', down: 'text-red-500', neutral: 'text-gray-400' }[this.trend]; }
+      },
+      
+      template: `
+        <div class="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition border border-gray-100">
+          <div class="flex justify-between items-start mb-4">
+            <div :class="['w-12 h-12 rounded-lg flex items-center justify-center text-2xl', colorClasses]">
+                {{ icon }}
+            </div>
+            <div :class="['text-sm font-medium flex items-center gap-1 bg-gray-50 px-2 py-1 rounded', trendColor]">
+                <span>{{ trendIcon }}</span>
+                <span class="capitalize">{{ trend }}</span>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-gray-500 text-sm font-medium mb-1">{{ label }}</h3>
+            <p class="text-2xl font-bold text-gray-800">{{ value }}</p>
+          </div>
+        </div>
+      `
+    });
+
+    app.mount('#app');
+  </script>
+</body>
+</html>

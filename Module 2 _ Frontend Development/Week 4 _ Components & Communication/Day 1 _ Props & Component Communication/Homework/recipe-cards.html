@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recipe Card Collection</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8 min-h-screen font-sans">
+  <div id="app">
+    <div class="max-w-7xl mx-auto">
+      <header class="mb-12 text-center">
+        <h1 class="text-4xl font-extrabold text-gray-800 mb-3 tracking-tight">My Recipe Collection 🍳</h1>
+        <p class="text-gray-600 text-lg">Curated deliciousness for every occasion</p>
+      </header>
+
+      <!-- Recipe Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <recipe-card
+          v-for="recipe in recipes"
+          :key="recipe.id"
+          v-bind="recipe">
+        </recipe-card>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const { createApp } = Vue;
+
+    const app = createApp({
+      data() {
+        return {
+          recipes: [
+            {
+              id: 1,
+              title: 'Pasta Carbonara',
+              image: 'https://images.unsplash.com/photo-1612874742237-6526221588e3?w=500',
+              prepTime: 25,
+              difficulty: 'Medium',
+              servings: 4,
+              rating: 5,
+              ingredients: ['Spaghetti', 'Eggs', 'Pancetta', 'Parmesan Cheese', 'Black Pepper'],
+              isVegetarian: false
+            },
+            {
+              id: 2,
+              title: 'Classic Caesar Salad',
+              image: 'https://images.unsplash.com/photo-1550304943-4f24f54ddde9?w=500',
+              prepTime: 15,
+              difficulty: 'Easy',
+              servings: 2,
+              rating: 4,
+              ingredients: ['Romaine Lettuce', 'Croutons', 'Parmesan', 'Caesar Dressing'],
+              isVegetarian: true
+            },
+            {
+              id: 3,
+              title: 'Grilled Ribeye Steak',
+              image: 'https://images.unsplash.com/photo-1600891964092-4316c288032e?w=500',
+              prepTime: 45,
+              difficulty: 'Hard',
+              servings: 2,
+              rating: 5,
+              ingredients: ['Ribeye Steak', 'Salt', 'Pepper', 'Butter', 'Garlic', 'Rosemary'],
+              isVegetarian: false
+            },
+            {
+              id: 4,
+              title: 'Vegetable Stir Fry',
+              // No image provided to test default placeholder
+              prepTime: 20,
+              difficulty: 'Easy',
+              servings: 3,
+              rating: 4,
+              ingredients: ['Broccoli', 'Carrots', 'Bell Peppers', 'Soy Sauce', 'Ginger', 'Garlic'],
+              isVegetarian: true
+            },
+            {
+              id: 5,
+              title: 'Chocolate Lava Cake',
+              image: 'https://images.unsplash.com/photo-1624353365286-3f8d62daad51?w=500',
+              prepTime: 35,
+              difficulty: 'Medium',
+              servings: 4,
+              rating: 5,
+              ingredients: ['Dark Chocolate', 'Butter', 'Sugar', 'Eggs', 'Flour'],
+              isVegetarian: true
+            }
+          ]
+        }
+      }
+    });
+
+    app.component('recipe-card', {
+      props: {
+        title: { type: String, required: true },
+        image: { type: String, default: 'https://via.placeholder.com/400x300?text=Recipe+Image' },
+        prepTime: { type: Number, required: true },
+        difficulty: { 
+          type: String, 
+          validator(value) { return ['Easy', 'Medium', 'Hard'].includes(value); }
+        },
+        servings: { type: Number, default: 4 },
+        rating: { 
+          type: Number, 
+          validator(value) { return value >= 1 && value <= 5; }
+        },
+        ingredients: { type: Array, default: () => [] },
+        isVegetarian: { type: Boolean, default: false }
+      },
+      
+      computed: {
+        stars() {
+          return '⭐'.repeat(this.rating) + '☆'.repeat(5 - this.rating);
+        },
+        difficultyClass() {
+          const classes = {
+            'Easy': 'bg-green-100 text-green-800 border-green-200',
+            'Medium': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+            'Hard': 'bg-red-100 text-red-800 border-red-200'
+          };
+          return classes[this.difficulty] || 'bg-gray-100 text-gray-800';
+        }
+      },
+      
+      template: `
+        <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col h-full border border-gray-100">
+          <div class="relative h-56 overflow-hidden bg-gray-200 group">
+            <img :src="image" :alt="title" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+            <div v-if="isVegetarian" class="absolute top-3 right-3 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-sm flex items-center gap-1">
+              <span>🌱</span> Vegetarian
+            </div>
+          </div>
+          
+          <div class="p-6 flex-1 flex flex-col">
+            <div class="flex justify-between items-start mb-2">
+              <h2 class="text-xl font-bold text-gray-800 leading-tight">{{ title }}</h2>
+              <span :class="['text-xs font-bold px-2 py-1 rounded border uppercase tracking-wide', difficultyClass]">
+                {{ difficulty }}
+              </span>
+            </div>
+            
+            <div class="mb-5 text-yellow-500 text-sm tracking-widest" title="Rating">
+              {{ stars }}
+            </div>
+            
+            <div class="grid grid-cols-2 gap-3 mt-auto text-sm text-gray-600 bg-gray-50 p-4 rounded-lg border border-gray-100">
+              <div class="flex items-center gap-2">
+                <span>⏱️</span> <span class="font-medium">{{ prepTime }} min</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span>🍽️</span> <span class="font-medium">{{ servings }} servings</span>
+              </div>
+              <div class="flex items-center gap-2 col-span-2 border-t border-gray-200 pt-2 mt-1">
+                <span>📝</span> <span class="font-medium">{{ ingredients.length }} ingredients</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      `
+    });
+
+    app.mount('#app');
+  </script>
+</body>
+</html>

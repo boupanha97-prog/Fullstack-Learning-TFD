@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog with Nested Components</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+  <div id="app">
+    <div class="max-w-3xl mx-auto">
+      <blog-post
+        title="Getting Started with Vue.js"
+        author="John Doe"
+        date="January 31, 2026"
+        content="Vue.js is an amazing progressive JavaScript framework for building user interfaces. In this article, we'll explore the basics of component communication using props. Props allow us to pass data from a parent component down to a child component, creating a predictable one-way data flow."
+        :comments="comments">
+      </blog-post>
+    </div>
+  </div>
+
+  <script>
+    const { createApp } = Vue;
+
+    const app = createApp({
+      data() {
+        return {
+          comments: [
+            { id: 1, username: 'Alice', message: 'Great article! Really helped me understand props.', timestamp: '2 hours ago' },
+            { id: 2, username: 'Bob', message: 'Could you cover events next?', timestamp: '1 hour ago' },
+            { id: 3, username: 'Charlie', message: 'Thanks for the clear examples!', timestamp: '30 minutes ago' }
+          ]
+        }
+      }
+    });
+
+    // Comment Item Component
+    app.component('comment-item', {
+      props: {
+        username: { type: String, required: true },
+        message: { type: String, required: true },
+        timestamp: { type: String, required: true }
+      },
+      template: `
+        <div class="bg-gray-50 p-4 rounded-lg mb-3 flex gap-4 border border-gray-100">
+          <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold shrink-0">
+            {{ username.charAt(0) }}
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center justify-between mb-1">
+                <span class="font-bold text-gray-800">{{ username }}</span>
+                <span class="text-xs text-gray-500">{{ timestamp }}</span>
+            </div>
+            <p class="text-gray-700 text-sm">{{ message }}</p>
+          </div>
+        </div>
+      `
+    });
+
+    // Blog Post Component
+    app.component('blog-post', {
+      props: {
+        title: String,
+        author: String,
+        date: String,
+        content: String,
+        comments: Array
+      },
+      template: `
+        <article class="bg-white rounded-lg shadow-lg overflow-hidden">
+          <div class="p-8 border-b border-gray-100">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ title }}</h1>
+            <div class="text-gray-500 text-sm mb-6">By <span class="font-medium text-gray-900">{{ author }}</span> • {{ date }}</div>
+            <p class="text-gray-700 leading-relaxed text-lg">{{ content }}</p>
+          </div>
+          
+          <div class="p-8 bg-gray-50/30">
+            <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                Comments <span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">{{ comments.length }}</span>
+            </h3>
+            <comment-item v-for="comment in comments" :key="comment.id" v-bind="comment"></comment-item>
+          </div>
+        </article>
+      `
+    });
+
+    app.mount('#app');
+  </script>
+</body>
+</html>

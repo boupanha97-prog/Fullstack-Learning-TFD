@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Todo List with Events</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+  <div id="app">
+    <div class="max-w-2xl mx-auto">
+      <div class="bg-white rounded-lg shadow-lg p-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">📝 My Todo List</h1>
+
+        <!-- Add Todo -->
+        <div class="flex gap-2 mb-6">
+          <input
+            v-model="newTodoText"
+            @keyup.enter="addTodo"
+            type="text"
+            placeholder="What needs to be done?"
+            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <button
+            @click="addTodo"
+            class="px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">
+            Add
+          </button>
+        </div>
+
+        <!-- Stats -->
+        <div class="flex justify-between text-sm text-gray-600 mb-4">
+          <span>Total: {{ todos.length }}</span>
+          <span>Active: {{ activeTodos }}</span>
+          <span>Completed: {{ completedTodos }}</span>
+        </div>
+
+        <!-- Todo List -->
+        <div class="space-y-2">
+          <todo-item
+            v-for="todo in todos"
+            :key="todo.id"
+            :todo="todo"
+            @toggle="toggleTodo"
+            @delete="deleteTodo"
+            @edit="editTodo">
+          </todo-item>
+        </div>
+
+        <p v-if="todos.length === 0" class="text-center text-gray-500 italic py-8">
+          No todos yet. Add one above! 👆
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const { createApp } = Vue;
+
+    const app = createApp({
+      data() {
+        return {
+          todos: [
+            { id: 1, text: 'Learn Vue.js props', completed: true },
+            { id: 2, text: 'Learn custom events', completed: false },
+            { id: 3, text: 'Build a project', completed: false }
+          ],
+          newTodoText: '',
+          nextId: 4
+        }
+      },
+      computed: {
+        activeTodos() {
+          return this.todos.filter(t => !t.completed).length;
+        },
+        completedTodos() {
+          return this.todos.filter(t => t.completed).length;
+        }
+      },
+      methods: {
+        addTodo() {
+          if (this.newTodoText.trim() === '') return;
+          
+          this.todos.push({
+            id: this.nextId++,
+            text: this.newTodoText,
+            completed: false
+          });
+          
+          this.newTodoText = '';
+        },
+        toggleTodo(todoId) {
+          const todo = this.todos.find(t => t.id === todoId);
+          if (todo) {
+            todo.completed = !todo.completed;
+          }
+        },
+        deleteTodo(todoId) {
+          this.todos = this.todos.filter(t => t.id !== todoId);
+        },
+        editTodo(todoId, newText) {
+          const todo = this.todos.find(t => t.id === todoId);
+          if (todo) {
+            todo.text = newText;
+          }
+        }
+      }
+    });
+
+    app.component('todo-item', {
+      props: {
+        todo: {
+          type: Object,
+          required: true
+        }
+      },
+      emits: ['toggle', 'delete', 'edit'],
+      methods: {
+        handleToggle() {
+          this.$emit('toggle', this.todo.id);
+        },
+        handleDelete() {
+          if (confirm('Delete this todo?')) {
+            this.$emit('delete', this.todo.id);
+          }
+        },
+        handleEdit() {
+          const newText = prompt('Edit todo:', this.todo.text);
+          if (newText !== null && newText.trim() !== '') {
+            this.$emit('edit', this.todo.id, newText.trim());
+          }
+        }
+      },
+      template: `
+        <div :class="[
+          'flex items-center gap-3 p-3 rounded-lg border transition',
+          todo.completed ? 'bg-gray-50 border-gray-200' : 'bg-white border-gray-300'
+        ]">
+          <input
+            type="checkbox"
+            :checked="todo.completed"
+            @change="handleToggle"
+            class="w-5 h-5 cursor-pointer">
+          
+          <span
+            :class="[
+              'flex-1 cursor-pointer',
+              todo.completed ? 'line-through text-gray-500' : 'text-gray-800'
+            ]"
+            @dblclick="handleEdit">
+            {{ todo.text }}
+          </span>
+
+          <button
+            @click="handleEdit"
+            class="px-3 py-1 text-sm bg-yellow-500 text-white rounded hover:bg-yellow-600 transition">
+            Edit
+          </button>
+
+          <button
+            @click="handleDelete"
+            class="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600 transition">
+            Delete
+          </button>
+        </div>
+      `
+    });
+
+    app.mount('#app');
+  </script>
+</body>
+</html>
